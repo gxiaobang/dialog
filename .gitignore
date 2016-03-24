@@ -1,0 +1,3 @@
+node_modules/
+# 忽略*.map
+build/**/*.map

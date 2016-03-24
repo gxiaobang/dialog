@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>测试弹窗组件</title>
+</head>
+<body>
+	<p>
+		<h1>测试弹窗组件</h1>
+	</p>
+	<form action="">
+		<p>
+			<label>
+				类型
+				<select id="type">
+					<option value="alert">alert</option>
+					<option value="confirm">confirm</option>
+					<option value="load">load</option>
+				</select>
+			</label>
+			<label>
+				图标
+				<select id="icon">
+					<option value="warn">warn</option>
+					<option value="error">error</option>
+					<option value="success">success</option>
+					<option value="inquiry">inquiry</option>
+				</select>
+			</label>
+		</p>
+		<p>
+			<label>
+				内容
+				<textarea id="msg">我是弹窗内容</textarea>
+			</label>
+		</p>
+		<p>
+			<button type="button" id="btn">确定</button>
+		</p>
+	</form>
+
+	<script src="./build/webpack/test.js"></script>
+</body>
+</html>
