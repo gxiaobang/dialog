@@ -7,17 +7,17 @@ import { getDOM, http, addEvent, parseHTML, mixin } from './util';
 
 const defaults = {
 	templ: {
-		pannel(title, content, btns) {
+		panel(title, content, btns) {
 			return this.mask(`
-				<div class="pannel pannel-default">
-					<div class="pannel-heading">
+				<div class="panel panel-default">
+					<div class="panel-heading">
 						${title}
 						<span class="close">&times;</span>
 					</div>
-					<div class="pannel-body">
+					<div class="panel-body">
 						${content}
 					</div>
-					<div class="pannel-footing">
+					<div class="panel-footing">
 						${btns}
 					</div>
 				</div>
@@ -146,14 +146,14 @@ class Dialog {
 	}
 
 	create() {
-		var templ = parseHTML(defaults.templ.pannel(
+		var templ = parseHTML(defaults.templ.panel(
 				this.title,
 				// content
 				(() => {
 					if (this.msg) {
 						return `
 							<div class="icon icon-${this.icon}"></div>
-							<div class="pannel-msg">${this.msg}</div>
+							<div class="panel-msg">${this.msg}</div>
 						`;
 					}
 					else {
@@ -162,17 +162,17 @@ class Dialog {
 				})(),
 				// btns
 				(() => {
-					return this.btns.map((item) => `<button type="button" class="btn btn-${item.style}">${item.text}</button>`).join('');
+					return this.btns.map((item) => `<button type="button" class="btn btn-${item.style}">${item.text}</button>`).join('\n');
 				})()
 			));
 
 		
 
 		this.mask = templ.children[0];
-		this.pannel = getDOM('.pannel', this.mask)[0];
-		this.heading = getDOM('.pannel-heading', this.pannel)[0];
-		this.body = getDOM('.pannel-body', this.pannel)[0];
-		this.footing = getDOM('.pannel-footing', this.pannel)[0];
+		this.panel = getDOM('.panel', this.mask)[0];
+		this.heading = getDOM('.panel-heading', this.panel)[0];
+		this.body = getDOM('.panel-body', this.panel)[0];
+		this.footing = getDOM('.panel-footing', this.panel)[0];
 		this.btnClose = getDOM('.close', this.heading)[0];
 		document.body.appendChild(templ);
 	}
@@ -183,8 +183,8 @@ class Dialog {
 
 	// 定位
 	position() {
-		this.pannel.style.left = (document.documentElement.clientWidth - this.pannel.offsetWidth) / 2 + 'px';
-		this.pannel.style.top =  (document.documentElement.clientHeight - this.pannel.offsetHeight) / 2 + 'px';
+		this.panel.style.left = (document.documentElement.clientWidth - this.panel.offsetWidth) / 2 + 'px';
+		this.panel.style.top =  (document.documentElement.clientHeight - this.panel.offsetHeight) / 2 + 'px';
 	}
 	// 弹性窗口
 	flex() {

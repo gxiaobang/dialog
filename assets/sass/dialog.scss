@@ -1,0 +1,20 @@
+@import "_variables";
+@import "_mixins";
+@import "_utilities";
+@import "_button";
+@import "_panel";
+
+// 遮罩
+.mask {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,.4);
+}
+
+.panel {
+	position: absolute;
+	
+}

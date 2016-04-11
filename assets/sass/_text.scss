@@ -1,0 +1,23 @@
+/**
+ * 字体
+ */
+
+// 对齐方式
+.text-left {
+	text-left: left;
+}
+.text-center {
+	text-left: center;
+}
+.text-right {
+	text-left: right;
+}
+
+
+// 字体颜色
+.text-success {
+	color: $color-success;
+}
+.text-danger {
+	color: $color-danger;
+}

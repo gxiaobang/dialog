@@ -1,0 +1,27 @@
+/**
+ * panel面板
+ */
+
+.panel {
+	min-width: 300px;
+	border: $border;
+	background: $bg-panel;
+	
+	// 标题
+	.panel-heading {
+		padding: 6px;
+		@extend .clearfix;
+		.close {
+			float: right;
+		}
+	}
+	// 主体
+	.panel-body {
+		padding: 10px;
+	}
+	// 底部
+	.panel-footing {
+		padding: 6px;
+		text-align: right;
+	}
+}
