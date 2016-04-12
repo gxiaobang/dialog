@@ -44,19 +44,10 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	var _dialog = __webpack_require__(1);
-	
-	var _util = __webpack_require__(2);
-	
-	var type = (0, _util.getDOM)('#type')[0],
-	    icon = (0, _util.getDOM)('#icon')[0],
-	    msg = (0, _util.getDOM)('#msg')[0];
-	
-	(0, _util.getDOM)('#btn')[0].onclick = function () {
-			(0, _dialog.dialog)(type.value, msg.value, icon.value);
-	};
+	__webpack_require__(1);
+	__webpack_require__(3);
+	module.exports = __webpack_require__(2);
+
 
 /***/ },
 /* 1 */
@@ -113,7 +104,7 @@
 				this.title = '提示框';
 				this.btns = [{ text: '确定', style: 'primary' }];
 				this.create();
-				this.handler();
+				this.events();
 				this.flex();
 				this.position();
 				this.show();
@@ -124,7 +115,7 @@
 				this.title = '提示框';
 				this.btns = [{ text: '确定', style: 'primary' }, { text: '取消', style: 'cancel' }];
 				this.create();
-				this.handler();
+				this.events();
 				this.flex();
 				this.position();
 				this.show();
@@ -140,16 +131,16 @@
 					success: function success(html) {
 						that.create();
 						that.render(html);
-						that.handler();
+						that.events();
 						that.flex();
 						that.position();
 						that.show();
 					},
 					beforeSend: function beforeSend() {
-						this.loading();
+						that.loading();
 					},
 					complete: function complete() {
-						this.closeLoading();
+						that.closeLoading();
 					},
 					error: function error(statusText) {
 						this.alert(statusText, 'error');
@@ -219,7 +210,7 @@
 				function () {
 					return _this.btns.map(function (item) {
 						return '<button type="button" class="btn btn-' + item.style + '">' + item.text + '</button>';
-					}).join('');
+					}).join('\n');
 				}()));
 	
 				this.mask = templ.children[0];
@@ -267,6 +258,7 @@
 			key: 'destory',
 			value: function destory() {
 				if (this.mask) {
+					this._off && this._off();
 					document.body.removeChild(this.mask);
 					this.mask = null;
 				}
@@ -283,6 +275,7 @@
 					case 'order':
 						this.fn[type].push(fn);
 				}
+				return this;
 			}
 			// 卸载事件
 	
@@ -304,6 +297,7 @@
 							this.fn[type].length = 0;
 						}
 				}
+				return this;
 			}
 	
 			// 触发事件
@@ -315,17 +309,21 @@
 					args[_key - 2] = arguments[_key];
 				}
 	
-				if (isFunction(fn)) {
-					fn.call.apply(fn, [obj].concat(args));
-				} else if (isArray(fn)) {
+				var result;
+				if ((0, _util.isFunction)(fn)) {
+					result = fn.call.apply(fn, [obj].concat(args));
+				} else if ((0, _util.isArray)(fn)) {
 					fn.forEach(function (f) {
-						f.call.apply(f, [obj].concat(args));
+						result = f.call.apply(f, [obj].concat(args));
+						return result;
 					});
 				}
+	
+				return result !== false;
 			}
 		}, {
-			key: 'handler',
-			value: function handler() {
+			key: 'events',
+			value: function events() {
 	
 				/*for (let i = 0, btn; btn = this.btns[i]; i++) {
 	   	switch (btn.getAttribute('data-duty')) {
@@ -342,24 +340,47 @@
 	   }*/
 				var that = this;
 				// 事件委托
-				(0, _util.addEvent)(this.footing, 'button', 'click', function (event) {
-					var index = getIndex(this);
+				(0, _util.addEvent)(this.footing, 'click', 'button', function (event) {
+					var index = (0, _util.getIndex)(this),
+					    result;
 					switch (index) {
 						// 默认0是确定
 						case 0:
-							that.trigger(this.fn.ok, this, event);
+							result = that.trigger(that.fn.ok, this, event);
 							break;
 						// 默认1是取消
 						case 1:
-							that.trigger(this.fn.cancel, this, event);
+							result = that.trigger(that.fn.cancel, this, event);
 							break;
 					}
 	
-					that.trigger(this.fn.order[index], this, event);
+					result = that.trigger(that.fn.order[index], this, event);
+	
+					if (result) {
+						that.destory();
+					}
 				});
 				(0, _util.addEvent)(this.btnClose, 'click', function () {
 					that.destory();
 				});
+	
+				this.resize();
+			}
+	
+			// 窗口resize
+	
+		}, {
+			key: 'resize',
+			value: function resize() {
+				var _this2 = this;
+	
+				var handler = function handler() {
+					return _this2.position();
+				};
+				(0, _util.addEvent)(window, 'resize', handler);
+				this._off = function () {
+					return (0, _util.removeEvent)(window, 'resize', handler);
+				};
 			}
 		}]);
 	
@@ -452,9 +473,11 @@
 	};
 	
 	// 获取索引
-	var getIndex = function getIndex(el) {
-		return [].indexOf.call(el.parent.children, el);
-	};
+	function getIndex(source) {
+		var arr = arguments.length <= 1 || arguments[1] === undefined ? source.parentNode.children : arguments[1];
+	
+		return [].indexOf.call(arr, source);
+	}
 	
 	// 获取range
 	function getRange() {
@@ -531,10 +554,96 @@
 		}
 	};
 	
-	// 绑定事件
-	var addEvent = function addEvent(el, type, fn) {
-		el.addEventListener(type, fn, false);
-	};
+	// 兼容事件
+	function fixEvent(event) {
+		event = event || window.event;
+	
+		if (!event.target) {
+			event.target = event.srcElement;
+		}
+	
+		if (!event.stopPropagation) {
+			event.stopPropagation = function () {
+				event.cancelBubble = true;
+			};
+		}
+	
+		if (!event.preventDefault) {
+			event.preventDefault = function () {
+				event.returnValue = false;
+			};
+		}
+	
+		return event;
+	}
+	
+	// 事件绑定
+	function addEvent(el, type, expr, fn) {
+		// el.addEventListener(type, fn, false);
+	
+		if (isString(el)) {
+			el = getDOM(el);
+		}
+	
+		if (el.length) {
+			forEach(el, function (elem) {
+				addEvent(elem, type, expr, fn);
+			});
+		} else {
+			if (isFunction(expr)) {
+				fn = expr;
+	
+				var handler = function handler(event) {
+					return fn.call(el, fixEvent(event));
+				};
+				handler.fn = fn;
+				if (suports.is('addEventListener')) {
+					el.addEventListener(type, handler, false);
+				} else {
+					el.attachEvent('on' + type, handler);
+				}
+			} else {
+				delegate(el, type, expr, fn);
+			}
+		}
+	}
+	
+	// 事件解绑
+	function removeEvent(el, type, fn) {
+		if (suports.is('removeEventListener')) {
+			el.removeEventListener(type, fn);
+		} else {
+			el.detachEvent('on' + type, fn);
+		}
+	}
+	
+	// 事件委托
+	function delegate(el, type, expr, fn) {
+		addEvent(el, type, function (event) {
+			event = fixEvent(event);
+			var target = event.target;
+	
+			if (suports.is('matches')) {
+				while (target !== el) {
+					if (target.matches(expr)) {
+						fn && fn.call(target, event);
+						break;
+					}
+					target = target.parentNode;
+				}
+			} else {
+				var els = getDOM(expr);
+				els = Array.from(els);
+				while (target !== el) {
+					if (els.indexOf(el) > -1) {
+						fn && fn.call(target, event);
+						break;
+					}
+					target = target.parentNode;
+				}
+			}
+		});
+	}
 	
 	// 动画帧
 	var requestAnim = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || function (fn) {
@@ -612,19 +721,126 @@
 		}
 	};
 	
+	/*function typeOf() {
+	
+	}
+	
+	// 类型判断
+	const $Type = {
+		typeOf,
+		isNumber,
+		isArray,
+		isObject,
+		isFunction
+	};
+	
+	function post() {
+	
+	}
+	
+	const $Http = {
+		post,
+		get,
+		uplaod,
+		jsonp
+	};
+	
+	const $Event = {
+		on,
+		un,
+		fixEvent,
+	
+	};
+	
+	// 数据缓存
+	
+	const $Data = {
+		add,
+		remove,
+		fix,
+	
+	};
+	
+	return {
+		$Type,
+		$Dom.
+		$Event,
+		$Http
+	};
+	
+	export {
+		add,
+	
+	};*/
+	
+	/*$Date = {
+		now,
+	
+	};
+	
+	
+	$Css.create(`
+			.box {
+				width: 100px;
+				height: 100px;
+			}
+		`);
+	$Css.get(el, 'bg');
+	$Css.set(el, 'bg', 'red');
+	
+	$Dom.parse('<div>123</div>');
+	$Dom.getText()
+	
+	$Node.getText()
+	
+	
+	$From.parse('#form');
+	$From.unparse({ user: '123' });*/
+	
+	var suports = {
+		is: function is() {
+			return true;
+		}
+	};
+	
 	exports.isObject = isObject;
 	exports.isNumber = isNumber;
 	exports.isArray = isArray;
 	exports.isString = isString;
 	exports.isFunction = isFunction;
+	exports.getIndex = getIndex;
 	exports.getDOM = getDOM;
 	exports.parseHTML = parseHTML;
 	exports.getStyle = getStyle;
 	exports.setStyle = setStyle;
 	exports.addEvent = addEvent;
+	exports.removeEvent = removeEvent;
 	exports.mixin = mixin;
 	exports.http = http;
 	exports.requestAnim = requestAnim;
+	exports.suports = suports;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _dialog = __webpack_require__(1);
+	
+	var _util = __webpack_require__(2);
+	
+	var type = (0, _util.getDOM)('#type')[0],
+	    icon = (0, _util.getDOM)('#icon')[0],
+	    msg = (0, _util.getDOM)('#msg')[0];
+	
+	(0, _util.getDOM)('#btn')[0].onclick = function () {
+		(0, _dialog.dialog)(type.value, msg.value, icon.value).on('ok', function (event) {
+			console.log('click ok button');
+		}).on('cancel', function (event) {
+			console.log('click cancel button');
+		});
+	};
 
 /***/ }
 /******/ ]);

@@ -2,7 +2,10 @@
  * 弹窗组件
  */
 
-import { getDOM, http, addEvent, parseHTML, mixin } from './util';
+import { isFunction, isArray, 
+	getIndex, getDOM, http, 
+	addEvent, removeEvent,
+	parseHTML, mixin } from './util';
 
 
 const defaults = {
@@ -59,7 +62,7 @@ class Dialog {
 			{ text: '确定', style: 'primary' }
 		];
 		this.create();
-		this.handler();
+		this.events();
 		this.flex();
 		this.position();
 		this.show();
@@ -72,7 +75,7 @@ class Dialog {
 			{ text: '取消', style: 'cancel' }
 		];
 		this.create();
-		this.handler();
+		this.events();
 		this.flex();
 		this.position();
 		this.show();
@@ -87,16 +90,16 @@ class Dialog {
 			success(html) {
 				that.create();
 				that.render(html);
-				that.handler();
+				that.events();
 				that.flex();
 				that.position();
 				that.show();
 			},
 			beforeSend() {
-				 this.loading()
+				that.loading()
 			},
 			complete() {
-				this.closeLoading()
+				that.closeLoading()
 			},
 			error(statusText) {
 				this.alert(statusText, 'error');
@@ -203,6 +206,7 @@ class Dialog {
 	// 销毁
 	destory() {
 		if (this.mask) {
+			this._off && this._off();
 			document.body.removeChild(this.mask);
 			this.mask = null;
 		}
@@ -216,6 +220,7 @@ class Dialog {
 			case 'order':
 				this.fn[ type ].push( fn );
 		}
+		return this;
 	}
 	// 卸载事件
 	un(type, fn) {
@@ -235,21 +240,26 @@ class Dialog {
 					this.fn[ type ].length = 0;
 				}
 		}
+		return this;
 	}
 
 	// 触发事件
 	trigger(fn, obj, ...args) {
+		var result;
 		if (isFunction(fn)) {
-			fn.call(obj, ...args);
+			result = fn.call(obj, ...args);
 		}
 		else if (isArray(fn)) {
 			fn.forEach((f) => {
-				f.call(obj, ...args);
+				result = f.call(obj, ...args);
+				return result;
 			});
 		}
+
+		return result !== false;
 	}
 
-	handler() {
+	events() {
 		
 		/*for (let i = 0, btn; btn = this.btns[i]; i++) {
 			switch (btn.getAttribute('data-duty')) {
@@ -266,24 +276,38 @@ class Dialog {
 		}*/
 		var that = this;
 		// 事件委托
-		addEvent(this.footing, 'button', 'click', function (event) {
-			var index = getIndex(this);
+		addEvent(this.footing, 'click', 'button', function (event) {
+			var index = getIndex(this),
+					result;
 			switch (index) {
 				// 默认0是确定
 				case 0:
-					that.trigger(this.fn.ok, this, event);
+					result = that.trigger(that.fn.ok, this, event);
 					break;
 				// 默认1是取消
 				case 1:
-					that.trigger(this.fn.cancel, this, event);
+					result = that.trigger(that.fn.cancel, this, event);
 					break;
 			}
 
-			that.trigger(this.fn.order[ index ], this, event);
+			result = that.trigger(that.fn.order[ index ], this, event);
+
+			if (result) {
+				that.destory();
+			}
 		});
 		addEvent(this.btnClose, 'click', function() {
 			that.destory();
 		});
+
+		this.resize();
+	}
+
+	// 窗口resize
+	resize() {
+		let handler = () => this.position();
+		addEvent(window, 'resize', handler);
+		this._off = () => removeEvent(window, 'resize', handler);
 	}
 }
 

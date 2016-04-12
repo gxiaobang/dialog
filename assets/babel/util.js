@@ -29,10 +29,11 @@ const getDOM = ( expr, root = document ) => {
 	return root.querySelectorAll(expr);
 };
 
+
 // 获取索引
-const getIndex = (el) => {
-	return [].indexOf.call(el.parent.children, el);
-};
+function getIndex(source, arr = source.parentNode.children) {
+	return [].indexOf.call(arr, source);
+}
 
 // 获取range
 function getRange() {
@@ -113,10 +114,101 @@ const setStyle = (el, name, value) => {
 	}
 };
 
-// 绑定事件
-const addEvent = (el, type, fn) => {
-	el.addEventListener(type, fn, false);
-};
+
+// 兼容事件
+function fixEvent(event) {
+	event = event || window.event;
+
+	if (!event.target) {
+		event.target = event.srcElement;
+	}
+
+	if (!event.stopPropagation) {
+		event.stopPropagation = () => {
+			event.cancelBubble = true;
+		};
+	}
+
+	if (!event.preventDefault) {
+		event.preventDefault = () => {
+			event.returnValue = false;
+		};
+	}
+
+	return event;
+}
+
+// 事件绑定
+function addEvent(el, type, expr, fn) {
+	// el.addEventListener(type, fn, false);
+
+	if (isString(el)) {
+		el = getDOM(el);
+	}
+
+	if (el.length) {
+		forEach(el, function(elem) {
+			addEvent(elem, type, expr, fn);
+		});
+	}
+	else {
+		if (isFunction(expr)) {
+			fn = expr;
+
+			let handler = (event) => fn.call(el, fixEvent(event));
+			handler.fn = fn;
+			if (suports.is('addEventListener')) {
+				el.addEventListener(type, handler, false);
+			}
+			else {
+				el.attachEvent('on' + type, handler);
+			}
+		}
+		else {
+			delegate(el, type, expr, fn)
+		}
+	}
+}
+
+// 事件解绑
+function removeEvent(el, type, fn) {
+	if (suports.is('removeEventListener')) {
+		el.removeEventListener(type, fn);
+	}
+	else {
+		el.detachEvent('on' + type, fn);
+	}
+}
+
+// 事件委托
+function delegate(el, type, expr, fn) {
+	addEvent(el, type, (event) => {
+		event = fixEvent(event);
+		let target = event.target;
+
+		if (suports.is('matches')) {
+			while (target !== el) {
+				if (target.matches(expr)) {
+					fn && fn.call(target, event);
+					break;
+				}
+				target = target.parentNode;
+			}
+		}
+		else {
+			let els = getDOM(expr);
+			els = Array.from(els);
+			while (target !== el) {
+				if (els.indexOf(el) > -1) {
+					fn && fn.call(target, event);
+					break;
+				}
+				target = target.parentNode;
+			}
+		}
+	});
+}
+
 
 // 动画帧
 const requestAnim = window.requestAnimationFrame || 
@@ -184,9 +276,95 @@ const http = ({ method, url = '', param = null,
 	}
 };
 
+/*function typeOf() {
+
+}
+
+// 类型判断
+const $Type = {
+	typeOf,
+	isNumber,
+	isArray,
+	isObject,
+	isFunction
+};
+
+function post() {
+
+}
+
+const $Http = {
+	post,
+	get,
+	uplaod,
+	jsonp
+};
+
+const $Event = {
+	on,
+	un,
+	fixEvent,
+
+};
+
+// 数据缓存
+
+const $Data = {
+	add,
+	remove,
+	fix,
+
+};
+
+return {
+	$Type,
+	$Dom.
+	$Event,
+	$Http
+};
+
+export {
+	add,
+
+};*/
+
+
+/*$Date = {
+	now,
+
+};
+
+
+$Css.create(`
+		.box {
+			width: 100px;
+			height: 100px;
+		}
+	`);
+$Css.get(el, 'bg');
+$Css.set(el, 'bg', 'red');
+
+$Dom.parse('<div>123</div>');
+$Dom.getText()
+
+$Node.getText()
+
+
+$From.parse('#form');
+$From.unparse({ user: '123' });*/
+
+const suports = {
+	is() {
+		return true;
+	}
+};
+
+
 
 export { 
 	isObject, isNumber, isArray, isString, isFunction,
-	getDOM, parseHTML, getStyle, setStyle, addEvent,
-	mixin, http, requestAnim 
+	getIndex, getDOM, 
+	parseHTML, getStyle, setStyle, 
+	addEvent, removeEvent,
+	mixin, http, requestAnim , suports
 };
