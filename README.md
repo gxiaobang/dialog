@@ -1,9 +1,9 @@
 # 弹窗组件: 常用的信息框提示
 
 ## 用法：dialog(type, msg, icon)
-  {[string]} type: alert|confirm|load|prompt 	弹窗类型
-	{[string]} msg: 信息框内容
-	{[string]} icon: success|warn|error|inquiry 	图标
++ {[string]} type: alert|confirm|load|prompt 	弹窗类型
++ {[string]} msg: 信息框内容
++ {[string]} icon: success|warn|error|inquiry 	图标
 
 
 ### 使用示例
