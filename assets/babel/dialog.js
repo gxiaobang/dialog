@@ -40,6 +40,9 @@ const defaults = {
 					${main}
 				</div>
 			`;
+		},
+		prompt() {
+			return `<div class="prompt" id="__prompt"></div>`;
 		}
 	}
 };
@@ -71,6 +74,7 @@ class Dialog extends BaseMethod {
 		this.show();
 	}
 
+	// 确认提示框
 	confirm() {
 		this.title = '提示框';
 		this.btns = [
@@ -84,6 +88,7 @@ class Dialog extends BaseMethod {
 		this.show();
 	}
 
+	// 异步加载页面
 	load() {
 		var that = this;
 		http({ 
@@ -110,6 +115,27 @@ class Dialog extends BaseMethod {
 		});
 	}
 
+	// 提示
+	prompt(msg, icon, ms = 3000) {
+		var prompt = getDOM('#__prompt')[0],
+				timer;
+		if (!prompt) {
+			prompt = parseHTML(defaults.templ.prompt()).children[0];
+			document.body.appendChild(prompt);
+		}
+		else {
+			clearTimeout(prompt.getAttribute('data-timer'));
+		}
+
+		prompt.innerHTML = msg;
+		prompt.style.display = 'block';
+		timer = setTimeout(() => {
+			prompt.style.display = 'none';
+		}, ms);
+		prompt.setAttribute('data-timer', timer);
+	}
+
+	// 加载中
 	loading() {
 		if (guide == 0) {
 			dg = this;
@@ -147,6 +173,9 @@ class Dialog extends BaseMethod {
 				break;
 			case 'close loading':
 				this.closeLoading();
+				break;
+			case 'prompt':
+				this.prompt(args[1], args[2], args[3]);
 				break;
 		}
 	}

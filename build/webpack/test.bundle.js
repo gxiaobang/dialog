@@ -85,6 +85,9 @@
 			},
 			mask: function mask(main) {
 				return '\n\t\t\t\t<div class="mask">\n\t\t\t\t\t' + main + '\n\t\t\t\t</div>\n\t\t\t';
+			},
+			prompt: function prompt() {
+				return '<div class="prompt" id="__prompt"></div>';
 			}
 		}
 	};
@@ -121,6 +124,9 @@
 				this.position();
 				this.show();
 			}
+	
+			// 确认提示框
+	
 		}, {
 			key: 'confirm',
 			value: function confirm() {
@@ -132,6 +138,9 @@
 				this.position();
 				this.show();
 			}
+	
+			// 异步加载页面
+	
 		}, {
 			key: 'load',
 			value: function load() {
@@ -159,6 +168,33 @@
 					}
 				});
 			}
+	
+			// 提示
+	
+		}, {
+			key: 'prompt',
+			value: function prompt(msg, icon) {
+				var ms = arguments.length <= 2 || arguments[2] === undefined ? 3000 : arguments[2];
+	
+				var prompt = (0, _util.getDOM)('#__prompt')[0],
+				    timer;
+				if (!prompt) {
+					prompt = (0, _util.parseHTML)(defaults.templ.prompt()).children[0];
+					document.body.appendChild(prompt);
+				} else {
+					clearTimeout(prompt.getAttribute('data-timer'));
+				}
+	
+				prompt.innerHTML = msg;
+				prompt.style.display = 'block';
+				timer = setTimeout(function () {
+					prompt.style.display = 'none';
+				}, ms);
+				prompt.setAttribute('data-timer', timer);
+			}
+	
+			// 加载中
+	
 		}, {
 			key: 'loading',
 			value: function loading() {
@@ -201,6 +237,9 @@
 						break;
 					case 'close loading':
 						this.closeLoading();
+						break;
+					case 'prompt':
+						this.prompt(arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2], arguments.length <= 3 ? undefined : arguments[3]);
 						break;
 				}
 			}
