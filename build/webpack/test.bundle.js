@@ -46,6 +46,7 @@
 
 	__webpack_require__(1);
 	__webpack_require__(3);
+	__webpack_require__(4);
 	module.exports = __webpack_require__(2);
 
 
@@ -60,13 +61,19 @@
 	});
 	exports.dialog = undefined;
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 弹窗组件
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _util = __webpack_require__(2);
 	
+	var _dragable = __webpack_require__(3);
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * 弹窗组件
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
 	
 	var defaults = {
 		templ: {
@@ -84,18 +91,23 @@
 	var guide = 0,
 	    dg;
 	
-	var Dialog = function () {
+	var Dialog = function (_BaseMethod) {
+		_inherits(Dialog, _BaseMethod);
+	
 		function Dialog() {
 			_classCallCheck(this, Dialog);
 	
-			this.fn = {
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Dialog).call(this));
+	
+			_this.fn = {
 				ready: [],
 				ok: [],
 				cancel: [],
 				// 按钮顺序
 				order: []
 			};
-			this.setup.apply(this, arguments);
+			_this.setup.apply(_this, arguments);
+			return _this;
 		}
 	
 		_createClass(Dialog, [{
@@ -195,20 +207,20 @@
 		}, {
 			key: 'create',
 			value: function create() {
-				var _this = this;
+				var _this2 = this;
 	
 				var templ = (0, _util.parseHTML)(defaults.templ.panel(this.title,
 				// content
 				function () {
-					if (_this.msg) {
-						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + _this.icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + _this.msg + '</div>\n\t\t\t\t\t\t';
+					if (_this2.msg) {
+						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + _this2.icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + _this2.msg + '</div>\n\t\t\t\t\t\t';
 					} else {
 						return '';
 					}
 				}(),
 				// btns
 				function () {
-					return _this.btns.map(function (item) {
+					return _this2.btns.map(function (item) {
 						return '<button type="button" class="btn btn-' + item.style + '">' + item.text + '</button>';
 					}).join('\n');
 				}()));
@@ -263,64 +275,6 @@
 					this.mask = null;
 				}
 			}
-	
-			// 安装事件
-	
-		}, {
-			key: 'on',
-			value: function on(type, fn) {
-				switch (type) {
-					case 'ok':
-					case 'cancel':
-					case 'order':
-						this.fn[type].push(fn);
-				}
-				return this;
-			}
-			// 卸载事件
-	
-		}, {
-			key: 'un',
-			value: function un(type, fn) {
-				switch (type) {
-					case 'ok':
-					case 'cancel':
-					case 'order':
-						if (fn) {
-							for (var i = 0, f; f = this.fn[type][i]; i++) {
-								if (f === fn) {
-									this.fn[type].splice(i, 1);
-									i--;
-								}
-							}
-						} else {
-							this.fn[type].length = 0;
-						}
-				}
-				return this;
-			}
-	
-			// 触发事件
-	
-		}, {
-			key: 'trigger',
-			value: function trigger(fn, obj) {
-				for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-					args[_key - 2] = arguments[_key];
-				}
-	
-				var result;
-				if ((0, _util.isFunction)(fn)) {
-					result = fn.call.apply(fn, [obj].concat(args));
-				} else if ((0, _util.isArray)(fn)) {
-					fn.forEach(function (f) {
-						result = f.call.apply(f, [obj].concat(args));
-						return result;
-					});
-				}
-	
-				return result !== false;
-			}
 		}, {
 			key: 'events',
 			value: function events() {
@@ -365,6 +319,7 @@
 				});
 	
 				this.resize();
+				new _dragable.Dragable(this.panel);
 			}
 	
 			// 窗口resize
@@ -372,10 +327,10 @@
 		}, {
 			key: 'resize',
 			value: function resize() {
-				var _this2 = this;
+				var _this3 = this;
 	
 				var handler = function handler() {
-					return _this2.position();
+					return _this3.position();
 				};
 				(0, _util.addEvent)(window, 'resize', handler);
 				this._off = function () {
@@ -385,7 +340,7 @@
 		}]);
 	
 		return Dialog;
-	}();
+	}(_util.BaseMethod);
 	
 	/*dialog('alert', '确认框', 'warn')
 		.on('ok', () => {
@@ -420,8 +375,8 @@
 	dialog('close loading');*/
 	
 	var dialog = exports.dialog = function dialog() {
-		for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-			args[_key2] = arguments[_key2];
+		for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+			args[_key] = arguments[_key];
 		}
 	
 		return new (Function.prototype.bind.apply(Dialog, [null].concat(args)))();
@@ -436,22 +391,27 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	var _arguments = arguments;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
 	/**
 	 * util.js
 	 * 工具类
 	 * by bang
 	 */
 	
-	var noop = function noop() {};
+	// 无操作
+	function noop() {}
 	
 	// 类型判断
 	var obt = Object.prototype.toString;
-	var isType = function isType(type) {
+	function isType(type) {
 		return function (obj) {
 			return obt.call(obj) === '[object ' + type + ']';
 		};
-	};
+	}
 	
 	var isObject = isType('Object'),
 	    isArray = isType('Array'),
@@ -459,18 +419,25 @@
 	    isString = isType('String'),
 	    isFunction = isType('Function');
 	
-	var named = function named(name) {
+	// 驼峰命名
+	function named(name) {
 		return name.replace(/[-]\w/g, function (a) {
 			return a.charAt(1).toUpperCase();
 		});
-	};
+	}
 	
 	// 获取dom节点
-	var getDOM = function getDOM(expr) {
+	function getDOM(expr) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? document : arguments[1];
 	
-		return root.querySelectorAll(expr);
-	};
+		if (isString(expr)) {
+			return root.querySelectorAll(expr);
+		} else if (expr) {
+			return isNumber(expr.length) ? expr : [expr];
+		} else {
+			return [];
+		}
+	}
 	
 	// 获取索引
 	function getIndex(source) {
@@ -491,7 +458,7 @@
 	}
 	
 	// 解析html
-	var parseHTML = function parseHTML(html) {
+	function parseHTML(html) {
 		var range = getRange();
 	
 		if (range.createContextualFragment) {
@@ -505,10 +472,10 @@
 			}
 			return fragment;
 		}
-	};
+	}
 	
 	// 设置样式
-	var getStyle = function getStyle(el, name) {
+	function getStyle(el, name) {
 		// 标准
 		if (window.getComputedStyle) {
 			return window.getComputedStyle(el, '')[name] || null;
@@ -522,10 +489,10 @@
 					return el.currentStyle[name] || null;
 				}
 			}
-	};
+	}
 	
 	// 获取样式
-	var setStyle = function setStyle(el, name, value) {
+	function setStyle(el, name, value) {
 	
 		if (isString(el)) {
 			el = getDOM(el)[0];
@@ -536,7 +503,7 @@
 		}
 	
 		var props = {};
-		if (_arguments.length == 3 && typeof name == 'string') {
+		if (arguments.length == 3 && typeof name == 'string') {
 			props[name] = value;
 		} else {
 			props = name;
@@ -552,7 +519,7 @@
 				el.style[_name] = props[_name] + 'px';
 			}
 		}
-	};
+	}
 	
 	// 兼容事件
 	function fixEvent(event) {
@@ -593,14 +560,12 @@
 			if (isFunction(expr)) {
 				fn = expr;
 	
-				var handler = function handler(event) {
-					return fn.call(el, fixEvent(event));
-				};
-				handler.fn = fn;
+				/*let handler = (event) => fn.call(el, fixEvent(event));
+	   handler.fn = fn;*/
 				if (suports.is('addEventListener')) {
-					el.addEventListener(type, handler, false);
+					el.addEventListener(type, fn, false);
 				} else {
-					el.attachEvent('on' + type, handler);
+					el.attachEvent('on' + type, fn);
 				}
 			} else {
 				delegate(el, type, expr, fn);
@@ -651,16 +616,16 @@
 	};
 	
 	// 遍历类数组
-	var forEach = function forEach(array, func) {
+	function forEach(array, func) {
 		if (isFunction(func)) {
 			for (var i = 0, len = array.length; i < len; i++) {
 				if (func(array[i], i) === false) break;
 			}
 		}
-	};
+	}
 	
 	// 混合 类似于extend
-	var mixin = function mixin(target) {
+	function mixin(target) {
 		for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 			sources[_key - 1] = arguments[_key];
 		}
@@ -671,10 +636,10 @@
 			}
 		});
 		return target;
-	};
+	}
 	
 	// http请求
-	var http = function http(_ref) {
+	function http(_ref) {
 		var method = _ref.method;
 		var _ref$url = _ref.url;
 		var url = _ref$url === undefined ? '' : _ref$url;
@@ -719,7 +684,7 @@
 			xhr.open();
 			xhr.send();
 		}
-	};
+	}
 	
 	/*function typeOf() {
 	
@@ -797,6 +762,91 @@
 	$From.parse('#form');
 	$From.unparse({ user: '123' });*/
 	
+	// 基于class
+	
+	var BaseMethod = function () {
+		function BaseMethod() {
+			_classCallCheck(this, BaseMethod);
+	
+			this.fn = {};
+		}
+	
+		// 初始化监听事件
+	
+	
+		_createClass(BaseMethod, [{
+			key: 'initFn',
+			value: function initFn() {
+				var _this = this;
+	
+				for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+					args[_key2] = arguments[_key2];
+				}
+	
+				forEach(args, function (name) {
+					_this.fn[name] = [];
+				});
+			}
+	
+			// 安装事件
+	
+		}, {
+			key: 'on',
+			value: function on(type, fn) {
+				if (isArray(this.fn[type])) {
+					this.fn[type].push(fn);
+				}
+				return this;
+			}
+			// 卸载事件
+	
+		}, {
+			key: 'un',
+			value: function un(type, fn) {
+				if (isArray(this.fn[type])) {
+					if (fn) {
+						for (var i = 0, f; f = this.fn[type][i]; i++) {
+							if (f === fn) {
+								this.fn[type].splice(i, 1);
+								i--;
+							}
+						}
+					} else {
+						this.fn[type].length = 0;
+					}
+				}
+				return this;
+			}
+	
+			// 触发事件
+	
+		}, {
+			key: 'trigger',
+			value: function trigger(fn, obj) {
+				for (var _len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
+					args[_key3 - 2] = arguments[_key3];
+				}
+	
+				var result;
+				if (isFunction(fn)) {
+					result = fn.call.apply(fn, [obj].concat(args));
+				} else if (isArray(fn)) {
+					fn.forEach(function (f) {
+						result = f.call.apply(f, [obj].concat(args));
+						return result;
+					});
+				}
+	
+				return result !== false;
+			}
+		}]);
+	
+		return BaseMethod;
+	}();
+	
+	// 检测浏览器支持
+	
+	
 	var suports = {
 		is: function is() {
 			return true;
@@ -815,6 +865,7 @@
 	exports.setStyle = setStyle;
 	exports.addEvent = addEvent;
 	exports.removeEvent = removeEvent;
+	exports.BaseMethod = BaseMethod;
 	exports.mixin = mixin;
 	exports.http = http;
 	exports.requestAnim = requestAnim;
@@ -822,6 +873,110 @@
 
 /***/ },
 /* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.Dragable = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _util = __webpack_require__(2);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * 拖动
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+	
+	
+	var Dragable = function (_BaseMethod) {
+		_inherits(Dragable, _BaseMethod);
+	
+		function Dragable(el, options) {
+			_classCallCheck(this, Dragable);
+	
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Dragable).call(this));
+	
+			_this.el = (0, _util.getDOM)(el)[0];
+			_this.target = (0, _util.getDOM)(el)[0] || _this.el;
+			_this.fn = {
+				begin: [],
+				move: [],
+				end: []
+			};
+			_this.initFn('begin', 'move', 'end');
+			_this.setup();
+			return _this;
+		}
+	
+		// 安装
+	
+	
+		_createClass(Dragable, [{
+			key: 'setup',
+			value: function setup() {
+				var _this2 = this;
+	
+				(0, _util.addEvent)(this.target, 'mousedown', function (event) {
+					return _this2.begin(event);
+				});
+			}
+		}, {
+			key: 'begin',
+			value: function begin(event) {
+				var _this3 = this;
+	
+				// this.target
+				event.preventDefault();
+	
+				this.sx = event.clientX - this.el.offsetLeft;
+				this.sy = event.clientY - this.el.offsetTop;
+	
+				var _move = function _move(event) {
+					return _this3.move(event);
+				};
+				var _end = function _end(event) {
+					return _this3.end(event);
+				};
+				this._off = function () {
+					(0, _util.removeEvent)(document, 'mousemove', _move);
+					(0, _util.removeEvent)(document, 'mouseup', _end);
+				};
+				(0, _util.addEvent)(document, 'mousemove', _move);
+				(0, _util.addEvent)(document, 'mouseup', _end);
+			}
+		}, {
+			key: 'move',
+			value: function move(event) {
+				event.preventDefault();
+	
+				this.x = event.clientX - this.sx;
+				this.y = event.clientY - this.sy;
+	
+				this.el.style.left = this.x + 'px';
+				this.el.style.top = this.y + 'px';
+			}
+		}, {
+			key: 'end',
+			value: function end(event) {
+				event.preventDefault();
+				this._off();
+			}
+		}]);
+	
+		return Dragable;
+	}(_util.BaseMethod);
+	
+	exports.Dragable = Dragable;
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

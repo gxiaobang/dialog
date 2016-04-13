@@ -5,7 +5,9 @@
 import { isFunction, isArray, 
 	getIndex, getDOM, http, 
 	addEvent, removeEvent,
-	parseHTML, mixin } from './util';
+	parseHTML, mixin, BaseMethod } from './util';
+
+import { Dragable } from './dragable.js';
 
 
 const defaults = {
@@ -44,8 +46,9 @@ const defaults = {
 var guide = 0,
 		dg;
 
-class Dialog {
+class Dialog extends BaseMethod {
 	constructor(...args) {
+		super();
 		this.fn = {
 			ready: [],
 			ok: [],
@@ -212,52 +215,7 @@ class Dialog {
 		}
 	}
 
-	// 安装事件
-	on(type, fn) {
-		switch (type) {
-			case 'ok':
-			case 'cancel':
-			case 'order':
-				this.fn[ type ].push( fn );
-		}
-		return this;
-	}
-	// 卸载事件
-	un(type, fn) {
-		switch (type) {
-			case 'ok':
-			case 'cancel':
-			case 'order':
-				if (fn) {
-					for (let i = 0, f; f = this.fn[ type ][ i ]; i++) {
-						if (f === fn) {
-							this.fn[ type ].splice(i, 1);
-							i--;
-						}
-					}
-				}
-				else {
-					this.fn[ type ].length = 0;
-				}
-		}
-		return this;
-	}
-
-	// 触发事件
-	trigger(fn, obj, ...args) {
-		var result;
-		if (isFunction(fn)) {
-			result = fn.call(obj, ...args);
-		}
-		else if (isArray(fn)) {
-			fn.forEach((f) => {
-				result = f.call(obj, ...args);
-				return result;
-			});
-		}
-
-		return result !== false;
-	}
+	
 
 	events() {
 		
@@ -301,6 +259,7 @@ class Dialog {
 		});
 
 		this.resize();
+		new Dragable(this.panel);
 	}
 
 	// 窗口resize

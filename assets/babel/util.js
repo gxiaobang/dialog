@@ -4,12 +4,12 @@
  * by bang
  */
 
-
-const noop = () => {};
+// 无操作
+function noop(){}
 
 // 类型判断
-const obt = Object.prototype.toString;
-const isType = (type) => {
+let obt = Object.prototype.toString;
+function isType(type) {
 	return (obj) => obt.call(obj) === `[object ${type}]`;
 }
 
@@ -19,15 +19,23 @@ const isObject = isType('Object'),
 			isString = isType('String'),
 			isFunction = isType('Function');
 
-
-const named = (name) => {
+// 驼峰命名
+function named(name) {
 	return name.replace(/[-]\w/g, a => a.charAt(1).toUpperCase());
-};
+}
 
 // 获取dom节点
-const getDOM = ( expr, root = document ) => {
-	return root.querySelectorAll(expr);
-};
+function getDOM(expr, root = document) {
+	if (isString(expr)) {
+		return root.querySelectorAll(expr);
+	}
+	else if (expr) {
+		return isNumber(expr.length) ? expr : [expr];
+	}
+	else {
+		return [];
+	}
+}
 
 
 // 获取索引
@@ -47,7 +55,7 @@ function getRange() {
 }
 
 // 解析html
-const parseHTML = (html) => {
+function parseHTML(html) {
 	var range = getRange();
 
 	if (range.createContextualFragment) {
@@ -62,10 +70,10 @@ const parseHTML = (html) => {
 		}
 		return fragment;
 	}
-};
+}
 
 // 设置样式
-const getStyle = (el, name) => {
+function getStyle(el, name) {
 	// 标准
 	if (window.getComputedStyle) {
 		return window.getComputedStyle( el, '' )[ name ] || null;
@@ -80,10 +88,10 @@ const getStyle = (el, name) => {
 			return el.currentStyle[ name ] || null;
 		}
 	}
-};
+}
 
 // 获取样式
-const setStyle = (el, name, value) => {
+function setStyle(el, name, value) {
 
 	if (isString(el)) {
 		el = getDOM(el)[0];
@@ -112,7 +120,7 @@ const setStyle = (el, name, value) => {
 			el.style[ name ] = props[ name ] + 'px';
 		}
 	}
-};
+}
 
 
 // 兼容事件
@@ -155,13 +163,13 @@ function addEvent(el, type, expr, fn) {
 		if (isFunction(expr)) {
 			fn = expr;
 
-			let handler = (event) => fn.call(el, fixEvent(event));
-			handler.fn = fn;
+			/*let handler = (event) => fn.call(el, fixEvent(event));
+			handler.fn = fn;*/
 			if (suports.is('addEventListener')) {
-				el.addEventListener(type, handler, false);
+				el.addEventListener(type, fn, false);
 			}
 			else {
-				el.attachEvent('on' + type, handler);
+				el.attachEvent('on' + type, fn);
 			}
 		}
 		else {
@@ -218,28 +226,28 @@ const requestAnim = window.requestAnimationFrame ||
 							(fn => setTimeout(fn, 1000 / 60));
 
 // 遍历类数组
-const forEach = (array, func) => {
+function forEach(array, func) {
 	if (isFunction(func)) {
 		for (var i = 0, len = array.length; i < len; i++) {
 			if (func(array[i], i) === false) break;
 		}
 	}
-};
+}
 
 // 混合 类似于extend
-const mixin = (target, ...sources) => {
+function mixin(target, ...sources) {
 	forEach(sources, (source) => {
 		for (let key in source) {
 			target[ key ] = source[ key ];
 		}
 	});
 	return target;
-};
+}
 
 // http请求
-const http = ({ method, url = '', param = null,  
+function http({ method, url = '', param = null,  
 		beforeSend = noop, success = noop, 
-		error = noop, complete = noop }) => {
+		error = noop, complete = noop }) {
 	var xhr;
 	if (window.XMLHttpRequest) {
 		xhr = new XMLHttpRequest();
@@ -274,7 +282,7 @@ const http = ({ method, url = '', param = null,
 		xhr.open();
 		xhr.send();
 	}
-};
+}
 
 /*function typeOf() {
 
@@ -353,6 +361,63 @@ $Node.getText()
 $From.parse('#form');
 $From.unparse({ user: '123' });*/
 
+// 基于class
+class BaseMethod {
+
+	constructor() {
+		this.fn = {};
+	}
+
+	// 初始化监听事件
+	initFn(...args) {
+		forEach(args, (name) => {
+			this.fn[ name ] = [];
+		});
+	}
+
+	// 安装事件
+	on(type, fn) {
+		if (isArray(this.fn[ type ])) {
+			this.fn[ type ].push( fn );
+		}
+		return this;
+	}
+	// 卸载事件
+	un(type, fn) {
+		if (isArray(this.fn[ type ])) {
+			if (fn) {
+				for (let i = 0, f; f = this.fn[ type ][ i ]; i++) {
+					if (f === fn) {
+						this.fn[ type ].splice(i, 1);
+						i--;
+					}
+				}
+			}
+			else {
+				this.fn[ type ].length = 0;
+			}
+		}
+		return this;
+	}
+
+	// 触发事件
+	trigger(fn, obj, ...args) {
+		var result;
+		if (isFunction(fn)) {
+			result = fn.call(obj, ...args);
+		}
+		else if (isArray(fn)) {
+			fn.forEach((f) => {
+				result = f.call(obj, ...args);
+				return result;
+			});
+		}
+
+		return result !== false;
+	}
+}
+
+// 检测浏览器支持
 const suports = {
 	is() {
 		return true;
@@ -366,5 +431,6 @@ export {
 	getIndex, getDOM, 
 	parseHTML, getStyle, setStyle, 
 	addEvent, removeEvent,
+	BaseMethod,
 	mixin, http, requestAnim , suports
 };
