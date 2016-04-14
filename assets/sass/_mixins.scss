@@ -2,6 +2,8 @@
  * 混合
  */
 
+$prefix-list: (-webkit-, -moz-, -ms-, -o-, "");
+
 @mixin clearfix() {
   &:before,
   &:after {
@@ -13,10 +15,68 @@
   }
 }
 
-@mixin close() {
-	cursor: pointer;
+@mixin prefix($prop, $value) {
+  @each $pre in $prefix-list {
+    #{$pre}-#{$prop}: $value;
+  }
+}
 
-	&:hover {
-		color: lighten($color-dark, 10%);
-	}
+// 阴影
+@mixin box-shadow($value) {
+  @include prefix(box-shadow, $value);
+}
+
+// 过渡
+@mixin transition($value) {
+  @include prefix(transition, $value);
+}
+
+// 动画
+@mixin animation($value) {
+  @include prefix(animation, $value);
+}
+
+// 颜色渐变
+@mixin linear-gradien($deg: 0deg, $beginColor: #000, $endColor: #000) {
+  @each $pre in (-webkit-,-moz-,-ms-,-o-) {
+    background-image: #{$pre}linear-gradient($deg, $beginColor, $endColor);
+  }
+}
+
+// 混合keyframes
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+  @keyframes #{$name} {
+    @content;
+  }
+}
+
+// 透明度
+@mixin opacity($value: 1) {
+  opacity: $value;
+  filter: alpha(opacity=#{$value * 100});
+}
+
+
+/**
+ * 三角形
+ * @param  {[list]} $edge: [边长, 顺时针设置]
+ * eg: @include triangle((bottom: 6px, Left: 4px, right: 4px)) 向上的三角
+ */
+@mixin triangle($edge: (top: 4px, right: 4px, left: 4px)) {
+  border-style: solid;
+  border-color: transparent;
+
+  // border: $size solid transparent;
+  // border-#{$dir}-color: currentColor;
+  $flag: true;
+  @each $dir, $val in $edge {
+    @if $flag == true {
+      border-#{$dir}-color: currentColor;
+      $flag: false;
+    }
+    border-#{$dir}-width: $val;
+  }
 }

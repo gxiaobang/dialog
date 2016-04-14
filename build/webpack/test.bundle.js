@@ -47,6 +47,7 @@
 	__webpack_require__(1);
 	__webpack_require__(3);
 	__webpack_require__(4);
+	__webpack_require__(5);
 	module.exports = __webpack_require__(2);
 
 
@@ -66,6 +67,8 @@
 	var _util = __webpack_require__(2);
 	
 	var _dragable = __webpack_require__(3);
+	
+	var _fx = __webpack_require__(4);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -107,7 +110,8 @@
 				ok: [],
 				cancel: [],
 				// 按钮顺序
-				order: []
+				order: [],
+				close: []
 			};
 			_this.setup.apply(_this, arguments);
 			return _this;
@@ -179,7 +183,7 @@
 				var prompt = (0, _util.getDOM)('#__prompt')[0],
 				    timer;
 				if (!prompt) {
-					prompt = (0, _util.parseHTML)(defaults.templ.prompt()).children[0];
+					prompt = (0, _util.parseDOM)(defaults.templ.prompt()).children[0];
 					document.body.appendChild(prompt);
 				} else {
 					clearTimeout(prompt.getAttribute('data-timer'));
@@ -200,7 +204,7 @@
 			value: function loading() {
 				if (guide == 0) {
 					dg = this;
-					document.body.appendChild((0, _util.parseHTML)(defaults.templ.loading()));
+					document.body.appendChild((0, _util.parseDOM)(defaults.templ.loading()));
 				}
 				guide++;
 			}
@@ -248,7 +252,7 @@
 			value: function create() {
 				var _this2 = this;
 	
-				var templ = (0, _util.parseHTML)(defaults.templ.panel(this.title,
+				var templ = (0, _util.parseDOM)(defaults.templ.panel(this.title,
 				// content
 				function () {
 					if (_this2.msg) {
@@ -275,7 +279,7 @@
 		}, {
 			key: 'render',
 			value: function render(html) {
-				this.content.appendChild((0, _util.parseHTML)(html));
+				this.content.appendChild((0, _util.parseDOM)(html));
 			}
 	
 			// 定位
@@ -296,12 +300,30 @@
 	
 		}, {
 			key: 'show',
-			value: function show() {}
+			value: function show() {
+				new _fx.Transition(this.mask, {
+					from: {
+						opacity: 0
+					},
+					to: {
+						opacity: 1
+					},
+					duration: '300ms'
+				}).on('complete', function () {
+					console.log('transition is complete.');
+				}).run();
+			}
 			// 隐藏
 	
 		}, {
 			key: 'hide',
-			value: function hide() {}
+			value: function hide() {
+				var _this3 = this;
+	
+				new _fx.Transition(this.mask, { to: { opacity: 0 } }).on('complete', function () {
+					return _this3.destory();
+				}).run();
+			}
 	
 			// 销毁
 	
@@ -350,11 +372,14 @@
 					result = that.trigger(that.fn.order[index], this, event);
 	
 					if (result) {
-						that.destory();
+						// that.destory();
+						that.hide();
 					}
 				});
-				(0, _util.addEvent)(this.btnClose, 'click', function () {
-					that.destory();
+				(0, _util.addEvent)(this.btnClose, 'click', function (event) {
+					// that.destory();
+					that.trigger(that.fn.close, this, event);
+					that.hide();
 				});
 	
 				this.resize();
@@ -366,10 +391,10 @@
 		}, {
 			key: 'resize',
 			value: function resize() {
-				var _this3 = this;
+				var _this4 = this;
 	
 				var handler = function handler() {
-					return _this3.position();
+					return _this4.position();
 				};
 				(0, _util.addEvent)(window, 'resize', handler);
 				this._off = function () {
@@ -497,7 +522,7 @@
 	}
 	
 	// 解析html
-	function parseHTML(html) {
+	function parseDOM(html) {
 		var range = getRange();
 	
 		if (range.createContextualFragment) {
@@ -857,6 +882,23 @@
 				return this;
 			}
 	
+			// 修改设置属性
+	
+		}, {
+			key: 'set',
+			value: function set(prop, value) {
+				this[prop] = value;
+			}
+			// 修改添加属性
+	
+		}, {
+			key: 'add',
+			value: function add(prop, value) {
+				if (isArray(this[prop])) {
+					this[prop].push(value);
+				}
+			}
+	
 			// 触发事件
 	
 		}, {
@@ -887,8 +929,15 @@
 	
 	
 	var suports = {
-		is: function is() {
+		_cache: {},
+		is: function is(prop) {
 			return true;
+		},
+	
+		// 获取支持属性
+		get: function get(prop) {
+			if (this._cache[prop]) return this._cache[prop];
+			return prop;
 		}
 	};
 	
@@ -899,7 +948,7 @@
 	exports.isFunction = isFunction;
 	exports.getIndex = getIndex;
 	exports.getDOM = getDOM;
-	exports.parseHTML = parseHTML;
+	exports.parseDOM = parseDOM;
 	exports.getStyle = getStyle;
 	exports.setStyle = setStyle;
 	exports.addEvent = addEvent;
@@ -1016,6 +1065,117 @@
 
 /***/ },
 /* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.Animation = exports.Transition = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _util = __webpack_require__(2);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * 特效
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+	
+	var Transition = function (_BaseMethod) {
+		_inherits(Transition, _BaseMethod);
+	
+		function Transition(el, options) {
+			_classCallCheck(this, Transition);
+	
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Transition).call(this));
+	
+			_this.el = (0, _util.getDOM)(el)[0];
+			_this.setOptions(options);
+			_this.initFn('complete');
+			return _this;
+		}
+	
+		_createClass(Transition, [{
+			key: 'setOptions',
+			value: function setOptions(_ref) {
+				var from = _ref.from;
+				var to = _ref.to;
+				var duration = _ref.duration;
+				var easing = _ref.easing;
+				var delay = _ref.delay;
+	
+				this.from = from || {};
+				this.to = to || {};
+				this.duration = duration || '';
+				this.delay = delay || '';
+				this.easing = easing || '400ms';
+			}
+		}, {
+			key: 'run',
+			value: function run() {
+				var _this2 = this;
+	
+				var transition = _util.suports.get('transition'),
+				    transitionend = _util.suports.get('transitionend');
+	
+				this.from[transition] = 'none';
+				(0, _util.setStyle)(this.el, this.from);
+				(0, _util.removeEvent)(this.el, transitionend);
+	
+				var handler = function handler(event) {
+					event.preventDefault();
+					_this2.trigger(_this2.fn.complete, _this2.el, event);
+					_this2.from[transition] = 'none';
+					(0, _util.removeEvent)(_this2.el, transitionend, handler);
+				};
+	
+				(0, _util.addEvent)(this.el, transitionend, handler);
+				(0, _util.requestAnim)(function () {
+					_this2.to[transition] = ['all', _this2.duration, _this2.delay, _this2.easing].join(' ');
+					(0, _util.setStyle)(_this2.el, _this2.to);
+				});
+			}
+		}]);
+	
+		return Transition;
+	}(_util.BaseMethod);
+	
+	var Animation = function (_BaseMethod2) {
+		_inherits(Animation, _BaseMethod2);
+	
+		function Animation() {
+			_classCallCheck(this, Animation);
+	
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Animation).apply(this, arguments));
+		}
+	
+		return Animation;
+	}(_util.BaseMethod);
+	
+	/*new Transition('#el', {
+			form: ,
+			to: ,
+			duration: '400'
+		})
+		.on()
+		.run();
+	
+	new Animation('#el', 'fadeOut')
+		.on('complete', () => {
+			console.log('animation is complete');
+		})
+		.run();*/
+	
+	exports.Transition = Transition;
+	exports.Animation = Animation;
+
+/***/ },
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

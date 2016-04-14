@@ -1,0 +1,56 @@
+/**
+ * 定义keyframes
+ */
+
+// 透明度淡出
+@include keyframes(fadeOut) {
+	0% {
+		@include opacity(1);
+	}
+	100% {
+		@include opacity(0);
+	}
+}
+
+// 透明度淡入
+@include keyframes(fadeIn) {
+	0% {
+		@include opacity(0);
+	}
+	100% {
+		@include opacity(1);
+	}
+}
+
+@include keyframes(slideDown) {
+	0% {
+		height: 0;
+		overflow: hidden;
+	}
+	100% {
+		height: auto;
+		overflow: hidden;
+	}
+}
+
+@include keyframes(slideUp) {
+	0% {
+		height: auto;
+		overflow: hidden;
+	}
+	100% {
+		height: 0;
+		overflow: hidden;
+	}
+}
+
+/* @include keyframes(scale) {
+	0% {
+		height: auto;
+		overflow: hidden;
+	}
+	100% {
+		height: 0;
+		overflow: hidden;
+	}
+} */

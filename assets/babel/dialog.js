@@ -5,9 +5,10 @@
 import { isFunction, isArray, 
 	getIndex, getDOM, http, 
 	addEvent, removeEvent,
-	parseHTML, mixin, BaseMethod } from './util';
+	parseDOM, mixin, BaseMethod } from './util';
 
 import { Dragable } from './dragable.js';
+import { Transition } from './fx.js';
 
 
 const defaults = {
@@ -57,7 +58,8 @@ class Dialog extends BaseMethod {
 			ok: [],
 			cancel: [],
 			// 按钮顺序
-			order: []
+			order: [],
+			close: []
 		};
 		this.setup(...args);
 	}
@@ -120,7 +122,7 @@ class Dialog extends BaseMethod {
 		var prompt = getDOM('#__prompt')[0],
 				timer;
 		if (!prompt) {
-			prompt = parseHTML(defaults.templ.prompt()).children[0];
+			prompt = parseDOM(defaults.templ.prompt()).children[0];
 			document.body.appendChild(prompt);
 		}
 		else {
@@ -140,7 +142,7 @@ class Dialog extends BaseMethod {
 		if (guide == 0) {
 			dg = this;
 			document.body.appendChild(
-					parseHTML(defaults.templ.loading())
+					parseDOM(defaults.templ.loading())
 				);
 		}
 		guide++;
@@ -181,7 +183,7 @@ class Dialog extends BaseMethod {
 	}
 
 	create() {
-		var templ = parseHTML(defaults.templ.panel(
+		var templ = parseDOM(defaults.templ.panel(
 				this.title,
 				// content
 				(() => {
@@ -213,7 +215,7 @@ class Dialog extends BaseMethod {
 	}
 
 	render(html) {
-		this.content.appendChild(parseHTML(html));
+		this.content.appendChild(parseDOM(html));
 	}
 
 	// 定位
@@ -228,11 +230,25 @@ class Dialog extends BaseMethod {
 
 	// 显示
 	show() {
-
+		new Transition(this.mask, {
+				from: {
+					opacity: 0
+				},
+				to: {
+					opacity: 1
+				},
+				duration: '300ms'
+			})
+			.on('complete', () => {
+				console.log('transition is complete.');
+			})
+			.run();
 	}
 	// 隐藏
 	hide() {
-
+		new Transition(this.mask, { to: { opacity: 0 } })
+			.on('complete', () => this.destory())
+			.run();
 	}
 
 	// 销毁
@@ -280,11 +296,14 @@ class Dialog extends BaseMethod {
 			result = that.trigger(that.fn.order[ index ], this, event);
 
 			if (result) {
-				that.destory();
+				// that.destory();
+				that.hide();
 			}
 		});
-		addEvent(this.btnClose, 'click', function() {
-			that.destory();
+		addEvent(this.btnClose, 'click', function(event) {
+			// that.destory();
+			that.trigger(that.fn.close, this, event);
+			that.hide();
 		});
 
 		this.resize();

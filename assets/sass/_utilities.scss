@@ -4,5 +4,9 @@
 }
 
 .close {
-	@include close;
+	cursor: pointer;
+
+	&:hover {
+		color: lighten($color-dark, 10%);
+	}
 }

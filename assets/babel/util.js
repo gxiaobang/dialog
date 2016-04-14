@@ -55,7 +55,7 @@ function getRange() {
 }
 
 // 解析html
-function parseHTML(html) {
+function parseDOM(html) {
 	var range = getRange();
 
 	if (range.createContextualFragment) {
@@ -400,6 +400,17 @@ class BaseMethod {
 		return this;
 	}
 
+	// 修改设置属性
+	set(prop, value) {
+		this[ prop ] = value;
+	}
+	// 修改添加属性
+	add(prop, value) {
+		if (isArray(this[ prop ])) {
+			this[ prop ].push(value);
+		}
+	}
+
 	// 触发事件
 	trigger(fn, obj, ...args) {
 		var result;
@@ -418,9 +429,15 @@ class BaseMethod {
 }
 
 // 检测浏览器支持
-const suports = {
-	is() {
+var suports = {
+	_cache: {},
+	is(prop) {
 		return true;
+	},
+	// 获取支持属性
+	get(prop) {
+		if (this._cache[prop]) return this._cache[prop];
+		return prop;	
 	}
 };
 
@@ -429,7 +446,7 @@ const suports = {
 export { 
 	isObject, isNumber, isArray, isString, isFunction,
 	getIndex, getDOM, 
-	parseHTML, getStyle, setStyle, 
+	parseDOM, getStyle, setStyle, 
 	addEvent, removeEvent,
 	BaseMethod,
 	mixin, http, requestAnim , suports
