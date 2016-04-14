@@ -6,6 +6,7 @@
 var gulp = require('gulp'),
 		babel = require('gulp-babel'), 	// babel-preset-es2015
 		sass = require('gulp-sass'),
+		autoprefixer = require('gulp-autoprefixer'),
 		webpack = require('gulp-webpack'),
 		plumber = require('gulp-plumber'),
 		sourcemaps = require('gulp-sourcemaps');
@@ -42,6 +43,9 @@ gulp.task('sass', () => {
 		.pipe(plumber())
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(autoprefixer({
+			browsers: ['last 2 versions']
+		}))
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(path.sass.dest));
 });
