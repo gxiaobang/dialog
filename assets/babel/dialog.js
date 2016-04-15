@@ -132,7 +132,7 @@ class Dialog extends BaseMethod {
 			if (!mask) {
 				mask = parseDOM(defaults.templ.loading()).children[0];
 				mask.id = '__loading';
-				mask.style.zIndex = 9999;
+				mask.style.zIndex = 9991;
 				document.body.appendChild(mask);
 			}
 			else {
@@ -341,7 +341,7 @@ class Dialog extends BaseMethod {
 		return new Dialog('confirm', msg, icon);
 	}
 	static prompt(msg, icon) {
-		return new Dialog('confirm', msg, icon);
+		return new Dialog('prompt', msg, icon);
 	}
 	static loading() {
 		return new Dialog('loading');

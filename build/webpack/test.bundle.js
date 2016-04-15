@@ -197,7 +197,7 @@
 					if (!mask) {
 						mask = (0, _util.parseDOM)(defaults.templ.loading()).children[0];
 						mask.id = '__loading';
-						mask.style.zIndex = 9999;
+						mask.style.zIndex = 9991;
 						document.body.appendChild(mask);
 					} else {
 						mask.style.display = 'block';
@@ -435,7 +435,7 @@
 		}, {
 			key: 'prompt',
 			value: function prompt(msg, icon) {
-				return new Dialog('confirm', msg, icon);
+				return new Dialog('prompt', msg, icon);
 			}
 		}, {
 			key: 'loading',
