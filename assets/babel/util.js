@@ -7,6 +7,73 @@
 // 无操作
 function noop(){}
 
+// 基于class
+class BaseMethod {
+
+	constructor() {
+		this.fn = {};
+	}
+
+	// 初始化监听事件
+	initFn(...args) {
+		forEach(args, (name) => {
+			this.fn[ name ] = [];
+		});
+	}
+
+	// 安装事件
+	on(type, fn) {
+		if (isArray(this.fn[ type ])) {
+			this.fn[ type ].push( fn );
+		}
+		return this;
+	}
+	// 卸载事件
+	un(type, fn) {
+		if (isArray(this.fn[ type ])) {
+			if (fn) {
+				for (let i = 0, f; f = this.fn[ type ][ i ]; i++) {
+					if (f === fn) {
+						this.fn[ type ].splice(i, 1);
+						i--;
+					}
+				}
+			}
+			else {
+				this.fn[ type ].length = 0;
+			}
+		}
+		return this;
+	}
+
+	// 修改设置属性
+	set(prop, value) {
+		this[ prop ] = value;
+	}
+	// 修改添加属性
+	add(prop, value) {
+		if (isArray(this[ prop ])) {
+			this[ prop ].push(value);
+		}
+	}
+
+	// 触发事件
+	trigger(fn, obj, ...args) {
+		var result;
+		if (isFunction(fn)) {
+			result = fn.call(obj, ...args);
+		}
+		else if (isArray(fn)) {
+			fn.forEach((f) => {
+				result = f.call(obj, ...args);
+				return result;
+			});
+		}
+
+		return result !== false;
+	}
+}
+
 // 类型判断
 let obt = Object.prototype.toString;
 function isType(type) {
@@ -245,186 +312,83 @@ function mixin(target, ...sources) {
 }
 
 // http请求
-function http({ method, url = '', param = null,  
-		beforeSend = noop, success = noop, 
-		error = noop, complete = noop }) {
-	var xhr;
-	if (window.XMLHttpRequest) {
-		xhr = new XMLHttpRequest();
+class Http extends BaseMethod {
+	constructor({ method = 'GET', url = '', param = null }) {
+		super();
+		this.initFn('beforeSend', 'success', 'error', 'complete');
+		this.method = method;
+		this.url = url;
+		this.param = param;
+		this.setup();
 	}
-	else {
 
+	setup() {
+		this.create();
+		this.events();
+		this.send(this.param);
 	}
 
-	xhr.onstatechange = () => {
-		if (xhr.readyState == 4) {
-			switch (xhr.status) {
-				case 200:
-				// 有缓存
-				case 302:
-					success(xhr.reText, xhr);
-					break;
-				case 404:
-				case 500:
-					error(xhr.statusText, xhr);
-					break;
-			}
-			complete(xhr.statusText, xhr);
+	create() {
+		this.xhr = new XMLHttpRequest();
+	}
+
+	send(param) {
+		this.beforeSend();
+		switch (this.method.toUpperCase()) {
+			case 'GET':
+				this.xhr.open('GET', this.url, true);
+				this.xhr.send();
+				break;
+			case 'POST':
+				this.xhr.open('POST', this.url, true);
+				this.xhr.send(this.param);
+				break;
 		}
 	}
 
-	beforeSend();
-	if (method == 'POST') {
-		xhr.open('POST', url, true);
-		xhr.send();
-	}
-	else {
-		xhr.open();
-		xhr.send();
-	}
-}
-
-/*function typeOf() {
-
-}
-
-// 类型判断
-const $Type = {
-	typeOf,
-	isNumber,
-	isArray,
-	isObject,
-	isFunction
-};
-
-function post() {
-
-}
-
-const $Http = {
-	post,
-	get,
-	uplaod,
-	jsonp
-};
-
-const $Event = {
-	on,
-	un,
-	fixEvent,
-
-};
-
-// 数据缓存
-
-const $Data = {
-	add,
-	remove,
-	fix,
-
-};
-
-return {
-	$Type,
-	$Dom.
-	$Event,
-	$Http
-};
-
-export {
-	add,
-
-};*/
-
-
-/*$Date = {
-	now,
-
-};
-
-
-$Css.create(`
-		.box {
-			width: 100px;
-			height: 100px;
-		}
-	`);
-$Css.get(el, 'bg');
-$Css.set(el, 'bg', 'red');
-
-$Dom.parse('<div>123</div>');
-$Dom.getText()
-
-$Node.getText()
-
-
-$From.parse('#form');
-$From.unparse({ user: '123' });*/
-
-// 基于class
-class BaseMethod {
-
-	constructor() {
-		this.fn = {};
-	}
-
-	// 初始化监听事件
-	initFn(...args) {
-		forEach(args, (name) => {
-			this.fn[ name ] = [];
-		});
-	}
-
-	// 安装事件
-	on(type, fn) {
-		if (isArray(this.fn[ type ])) {
-			this.fn[ type ].push( fn );
-		}
-		return this;
-	}
-	// 卸载事件
-	un(type, fn) {
-		if (isArray(this.fn[ type ])) {
-			if (fn) {
-				for (let i = 0, f; f = this.fn[ type ][ i ]; i++) {
-					if (f === fn) {
-						this.fn[ type ].splice(i, 1);
-						i--;
-					}
+	events() {
+		this.xhr.onreadystatechange = () => {
+			// console.log(this.xhr.readyState);
+			if (this.xhr.readyState == 4) {
+				switch (this.xhr.status) {
+					case 200:
+					// 有缓存
+					case 302:
+						this.success();
+						break;
+					case 404:
+					case 500:
+						this.error();
+						break;
 				}
-			}
-			else {
-				this.fn[ type ].length = 0;
+				this.complete();
 			}
 		}
-		return this;
 	}
 
-	// 修改设置属性
-	set(prop, value) {
-		this[ prop ] = value;
+	// 请求发送前
+	beforeSend() {
+		this.trigger(this.fn.beforeSend, this.xhr);
 	}
-	// 修改添加属性
-	add(prop, value) {
-		if (isArray(this[ prop ])) {
-			this[ prop ].push(value);
-		}
+	// 成功
+	success() {
+		this.trigger(this.fn.success, this.xhr, this.xhr.responseText);
+	}
+	// 错误
+	error() {
+		this.trigger(this.fn.error, this.xhr, this.xhr.statusText);
+	}
+	// 完成
+	complete() {
+		this.trigger(this.fn.complete, this.xhr);
 	}
 
-	// 触发事件
-	trigger(fn, obj, ...args) {
-		var result;
-		if (isFunction(fn)) {
-			result = fn.call(obj, ...args);
-		}
-		else if (isArray(fn)) {
-			fn.forEach((f) => {
-				result = f.call(obj, ...args);
-				return result;
-			});
-		}
 
-		return result !== false;
+	static get(url, param) {
+		return new Http({ method: 'GET', url, param });
+	}
+	static post() {
+		return new Http({ method: 'POST', url, param });
 	}
 }
 
@@ -449,5 +413,5 @@ export {
 	parseDOM, getStyle, setStyle, 
 	addEvent, removeEvent,
 	BaseMethod,
-	mixin, http, requestAnim , suports
+	mixin, Http, requestAnim , suports
 };

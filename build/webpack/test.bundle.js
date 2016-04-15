@@ -55,12 +55,12 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.dialog = undefined;
+	exports.Dialog = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -94,6 +94,7 @@
 			}
 		}
 	};
+	
 	var guide = 0;
 	
 	var Dialog = function (_BaseMethod) {
@@ -140,28 +141,22 @@
 		}, {
 			key: 'load',
 			value: function load() {
-				var that = this;
-				(0, _util.http)({
-					url: this.url,
-					method: this.method,
-					param: this.param,
-					success: function success(html) {
-						that.create();
-						that.render(html);
-						that.events();
-						that.flex();
-						that.position();
-						that.show();
-					},
-					beforeSend: function beforeSend() {
-						that.loading();
-					},
-					complete: function complete() {
-						that.closeLoading();
-					},
-					error: function error(statusText) {
-						this.alert(statusText, 'error');
-					}
+				var _this2 = this;
+	
+				this.loading();
+				_util.Http.get('test.html', this.param).on('complete', function () {
+					_this2.closeLoading();
+				}).on('success', function (html) {
+					_this2.title = '默认标题';
+					_this2.btns = [{ text: '保存', style: 'primary' }];
+					_this2.create();
+					_this2.events();
+					_this2.render(html);
+					_this2.flex();
+					_this2.position();
+					_this2.show();
+				}).on('error', function () {
+					_this2.alert(statusText, 'error');
 				});
 			}
 	
@@ -170,7 +165,7 @@
 		}, {
 			key: 'prompt',
 			value: function prompt(msg, icon) {
-				var _this2 = this;
+				var _this3 = this;
 	
 				var ms = arguments.length <= 2 || arguments[2] === undefined ? 3000 : arguments[2];
 	
@@ -187,7 +182,7 @@
 				prompt.style.display = 'block';
 				timer = setTimeout(function () {
 					prompt.style.display = 'none';
-					_this2.trigger(_this2.fn.ready, prompt);
+					_this3.trigger(_this3.fn.ready, prompt);
 				}, ms);
 				prompt.setAttribute('data-timer', timer);
 			}
@@ -202,6 +197,7 @@
 					if (!mask) {
 						mask = (0, _util.parseDOM)(defaults.templ.loading()).children[0];
 						mask.id = '__loading';
+						mask.style.zIndex = 9999;
 						document.body.appendChild(mask);
 					} else {
 						mask.style.display = 'block';
@@ -212,7 +208,7 @@
 		}, {
 			key: 'closeLoading',
 			value: function closeLoading() {
-				guide--;
+				if (guide > 0) guide--;
 				if (guide == 0) {
 					// dg.destory();
 					var mask = (0, _util.getDOM)('#__loading')[0];
@@ -238,6 +234,7 @@
 					case 'load':
 						this.url = arguments.length <= 1 ? undefined : arguments[1];
 						this.param = arguments.length <= 2 ? undefined : arguments[2];
+						this.title = arguments.length <= 3 ? undefined : arguments[3];
 						this[this.type]();
 						break;
 					case 'loading':
@@ -254,20 +251,20 @@
 		}, {
 			key: 'create',
 			value: function create() {
-				var _this3 = this;
+				var _this4 = this;
 	
 				var templ = (0, _util.parseDOM)(defaults.templ.panel(this.title,
 				// content
 				function () {
-					if (_this3.msg) {
-						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + _this3.icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + _this3.msg + '</div>\n\t\t\t\t\t\t';
+					if (_this4.msg) {
+						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + _this4.icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + _this4.msg + '</div>\n\t\t\t\t\t\t';
 					} else {
 						return '';
 					}
 				}(),
 				// btns
 				function () {
-					return _this3.btns.map(function (item) {
+					return _this4.btns.map(function (item) {
 						return '<button type="button" class="btn btn-' + item.style + '">' + item.text + '</button>';
 					}).join('\n');
 				}()));
@@ -283,7 +280,7 @@
 		}, {
 			key: 'render',
 			value: function render(html) {
-				this.content.appendChild((0, _util.parseDOM)(html));
+				this.body.appendChild((0, _util.parseDOM)(html));
 			}
 	
 			// 定位
@@ -322,10 +319,10 @@
 		}, {
 			key: 'hide',
 			value: function hide() {
-				var _this4 = this;
+				var _this5 = this;
 	
 				new _fx.Transition(this.mask, { to: { opacity: 0 } }).on('complete', function () {
-					return _this4.destory();
+					return _this5.destory();
 				}).run();
 			}
 	
@@ -387,7 +384,7 @@
 				});
 	
 				this.resize();
-				new _dragable.Dragable(this.panel);
+				new _dragable.Dragable(this.panel, { target: this.heading });
 			}
 	
 			// 窗口resize
@@ -395,10 +392,10 @@
 		}, {
 			key: 'resize',
 			value: function resize() {
-				var _this5 = this;
+				var _this6 = this;
 	
 				var handler = function handler() {
-					return _this5.position();
+					return _this6.position();
 				};
 				(0, _util.addEvent)(window, 'resize', handler);
 				this._off = function () {
@@ -425,6 +422,36 @@
 	  	return this;
 	  }*/
 	
+		}], [{
+			key: 'alert',
+			value: function alert(msg, icon) {
+				return new Dialog('alert', msg, icon);
+			}
+		}, {
+			key: 'confirm',
+			value: function confirm(msg, icon) {
+				return new Dialog('confirm', msg, icon);
+			}
+		}, {
+			key: 'prompt',
+			value: function prompt(msg, icon) {
+				return new Dialog('confirm', msg, icon);
+			}
+		}, {
+			key: 'loading',
+			value: function loading() {
+				return new Dialog('loading');
+			}
+		}, {
+			key: 'closeLoading',
+			value: function closeLoading() {
+				return new Dialog('close loading');
+			}
+		}, {
+			key: 'load',
+			value: function load(url, param, title) {
+				return new Dialog('load', url, param, title);
+			}
 		}]);
 	
 		return Dialog;
@@ -462,13 +489,12 @@
 	// close loading
 	dialog('close loading');*/
 	
-	var dialog = exports.dialog = function dialog() {
-		for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-			args[_key] = arguments[_key];
-		}
+	// 全局
 	
-		return new (Function.prototype.bind.apply(Dialog, [null].concat(args)))();
-	};
+	
+	global.Dialog = Dialog;
+	exports.Dialog = Dialog;
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 2 */
@@ -482,6 +508,10 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	/**
@@ -493,7 +523,108 @@
 	// 无操作
 	function noop() {}
 	
+	// 基于class
+	
+	var BaseMethod = function () {
+		function BaseMethod() {
+			_classCallCheck(this, BaseMethod);
+	
+			this.fn = {};
+		}
+	
+		// 初始化监听事件
+	
+	
+		_createClass(BaseMethod, [{
+			key: 'initFn',
+			value: function initFn() {
+				var _this = this;
+	
+				for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+					args[_key] = arguments[_key];
+				}
+	
+				forEach(args, function (name) {
+					_this.fn[name] = [];
+				});
+			}
+	
+			// 安装事件
+	
+		}, {
+			key: 'on',
+			value: function on(type, fn) {
+				if (isArray(this.fn[type])) {
+					this.fn[type].push(fn);
+				}
+				return this;
+			}
+			// 卸载事件
+	
+		}, {
+			key: 'un',
+			value: function un(type, fn) {
+				if (isArray(this.fn[type])) {
+					if (fn) {
+						for (var i = 0, f; f = this.fn[type][i]; i++) {
+							if (f === fn) {
+								this.fn[type].splice(i, 1);
+								i--;
+							}
+						}
+					} else {
+						this.fn[type].length = 0;
+					}
+				}
+				return this;
+			}
+	
+			// 修改设置属性
+	
+		}, {
+			key: 'set',
+			value: function set(prop, value) {
+				this[prop] = value;
+			}
+			// 修改添加属性
+	
+		}, {
+			key: 'add',
+			value: function add(prop, value) {
+				if (isArray(this[prop])) {
+					this[prop].push(value);
+				}
+			}
+	
+			// 触发事件
+	
+		}, {
+			key: 'trigger',
+			value: function trigger(fn, obj) {
+				for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+					args[_key2 - 2] = arguments[_key2];
+				}
+	
+				var result;
+				if (isFunction(fn)) {
+					result = fn.call.apply(fn, [obj].concat(args));
+				} else if (isArray(fn)) {
+					fn.forEach(function (f) {
+						result = f.call.apply(f, [obj].concat(args));
+						return result;
+					});
+				}
+	
+				return result !== false;
+			}
+		}]);
+	
+		return BaseMethod;
+	}();
+	
 	// 类型判断
+	
+	
 	var obt = Object.prototype.toString;
 	function isType(type) {
 		return function (obj) {
@@ -714,8 +845,8 @@
 	
 	// 混合 类似于extend
 	function mixin(target) {
-		for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-			sources[_key - 1] = arguments[_key];
+		for (var _len3 = arguments.length, sources = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+			sources[_key3 - 1] = arguments[_key3];
 		}
 	
 		forEach(sources, function (source) {
@@ -727,227 +858,123 @@
 	}
 	
 	// http请求
-	function http(_ref) {
-		var method = _ref.method;
-		var _ref$url = _ref.url;
-		var url = _ref$url === undefined ? '' : _ref$url;
-		var _ref$param = _ref.param;
-		var param = _ref$param === undefined ? null : _ref$param;
-		var _ref$beforeSend = _ref.beforeSend;
-		var beforeSend = _ref$beforeSend === undefined ? noop : _ref$beforeSend;
-		var _ref$success = _ref.success;
-		var success = _ref$success === undefined ? noop : _ref$success;
-		var _ref$error = _ref.error;
-		var error = _ref$error === undefined ? noop : _ref$error;
-		var _ref$complete = _ref.complete;
-		var complete = _ref$complete === undefined ? noop : _ref$complete;
 	
-		var xhr;
-		if (window.XMLHttpRequest) {
-			xhr = new XMLHttpRequest();
-		} else {}
+	var Http = function (_BaseMethod) {
+		_inherits(Http, _BaseMethod);
 	
-		xhr.onstatechange = function () {
-			if (xhr.readyState == 4) {
-				switch (xhr.status) {
-					case 200:
-					// 有缓存
-					case 302:
-						success(xhr.reText, xhr);
-						break;
-					case 404:
-					case 500:
-						error(xhr.statusText, xhr);
-						break;
-				}
-				complete(xhr.statusText, xhr);
-			}
-		};
+		function Http(_ref) {
+			var _ref$method = _ref.method;
+			var method = _ref$method === undefined ? 'GET' : _ref$method;
+			var _ref$url = _ref.url;
+			var url = _ref$url === undefined ? '' : _ref$url;
+			var _ref$param = _ref.param;
+			var param = _ref$param === undefined ? null : _ref$param;
 	
-		beforeSend();
-		if (method == 'POST') {
-			xhr.open('POST', url, true);
-			xhr.send();
-		} else {
-			xhr.open();
-			xhr.send();
-		}
-	}
+			_classCallCheck(this, Http);
 	
-	/*function typeOf() {
+			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Http).call(this));
 	
-	}
-	
-	// 类型判断
-	const $Type = {
-		typeOf,
-		isNumber,
-		isArray,
-		isObject,
-		isFunction
-	};
-	
-	function post() {
-	
-	}
-	
-	const $Http = {
-		post,
-		get,
-		uplaod,
-		jsonp
-	};
-	
-	const $Event = {
-		on,
-		un,
-		fixEvent,
-	
-	};
-	
-	// 数据缓存
-	
-	const $Data = {
-		add,
-		remove,
-		fix,
-	
-	};
-	
-	return {
-		$Type,
-		$Dom.
-		$Event,
-		$Http
-	};
-	
-	export {
-		add,
-	
-	};*/
-	
-	/*$Date = {
-		now,
-	
-	};
-	
-	
-	$Css.create(`
-			.box {
-				width: 100px;
-				height: 100px;
-			}
-		`);
-	$Css.get(el, 'bg');
-	$Css.set(el, 'bg', 'red');
-	
-	$Dom.parse('<div>123</div>');
-	$Dom.getText()
-	
-	$Node.getText()
-	
-	
-	$From.parse('#form');
-	$From.unparse({ user: '123' });*/
-	
-	// 基于class
-	
-	var BaseMethod = function () {
-		function BaseMethod() {
-			_classCallCheck(this, BaseMethod);
-	
-			this.fn = {};
+			_this2.initFn('beforeSend', 'success', 'error', 'complete');
+			_this2.method = method;
+			_this2.url = url;
+			_this2.param = param;
+			_this2.setup();
+			return _this2;
 		}
 	
-		// 初始化监听事件
-	
-	
-		_createClass(BaseMethod, [{
-			key: 'initFn',
-			value: function initFn() {
-				var _this = this;
-	
-				for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-					args[_key2] = arguments[_key2];
-				}
-	
-				forEach(args, function (name) {
-					_this.fn[name] = [];
-				});
+		_createClass(Http, [{
+			key: 'setup',
+			value: function setup() {
+				this.create();
+				this.events();
+				this.send(this.param);
 			}
-	
-			// 安装事件
-	
 		}, {
-			key: 'on',
-			value: function on(type, fn) {
-				if (isArray(this.fn[type])) {
-					this.fn[type].push(fn);
-				}
-				return this;
+			key: 'create',
+			value: function create() {
+				this.xhr = new XMLHttpRequest();
 			}
-			// 卸载事件
-	
 		}, {
-			key: 'un',
-			value: function un(type, fn) {
-				if (isArray(this.fn[type])) {
-					if (fn) {
-						for (var i = 0, f; f = this.fn[type][i]; i++) {
-							if (f === fn) {
-								this.fn[type].splice(i, 1);
-								i--;
-							}
+			key: 'send',
+			value: function send(param) {
+				this.beforeSend();
+				switch (this.method.toUpperCase()) {
+					case 'GET':
+						this.xhr.open('GET', this.url, true);
+						this.xhr.send();
+						break;
+					case 'POST':
+						this.xhr.open('POST', this.url, true);
+						this.xhr.send(this.param);
+						break;
+				}
+			}
+		}, {
+			key: 'events',
+			value: function events() {
+				var _this3 = this;
+	
+				this.xhr.onreadystatechange = function () {
+					// console.log(this.xhr.readyState);
+					if (_this3.xhr.readyState == 4) {
+						switch (_this3.xhr.status) {
+							case 200:
+							// 有缓存
+							case 302:
+								_this3.success();
+								break;
+							case 404:
+							case 500:
+								_this3.error();
+								break;
 						}
-					} else {
-						this.fn[type].length = 0;
+						_this3.complete();
 					}
-				}
-				return this;
+				};
 			}
 	
-			// 修改设置属性
+			// 请求发送前
 	
 		}, {
-			key: 'set',
-			value: function set(prop, value) {
-				this[prop] = value;
+			key: 'beforeSend',
+			value: function beforeSend() {
+				this.trigger(this.fn.beforeSend, this.xhr);
 			}
-			// 修改添加属性
+			// 成功
 	
 		}, {
-			key: 'add',
-			value: function add(prop, value) {
-				if (isArray(this[prop])) {
-					this[prop].push(value);
-				}
+			key: 'success',
+			value: function success() {
+				this.trigger(this.fn.success, this.xhr, this.xhr.responseText);
 			}
-	
-			// 触发事件
+			// 错误
 	
 		}, {
-			key: 'trigger',
-			value: function trigger(fn, obj) {
-				for (var _len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
-					args[_key3 - 2] = arguments[_key3];
-				}
+			key: 'error',
+			value: function error() {
+				this.trigger(this.fn.error, this.xhr, this.xhr.statusText);
+			}
+			// 完成
 	
-				var result;
-				if (isFunction(fn)) {
-					result = fn.call.apply(fn, [obj].concat(args));
-				} else if (isArray(fn)) {
-					fn.forEach(function (f) {
-						result = f.call.apply(f, [obj].concat(args));
-						return result;
-					});
-				}
-	
-				return result !== false;
+		}, {
+			key: 'complete',
+			value: function complete() {
+				this.trigger(this.fn.complete, this.xhr);
+			}
+		}], [{
+			key: 'get',
+			value: function get(url, param) {
+				return new Http({ method: 'GET', url: url, param: param });
+			}
+		}, {
+			key: 'post',
+			value: function post() {
+				return new Http({ method: 'POST', url: url, param: param });
 			}
 		}]);
 	
-		return BaseMethod;
-	}();
+		return Http;
+	}(BaseMethod);
 	
 	// 检测浏览器支持
 	
@@ -979,7 +1006,7 @@
 	exports.removeEvent = removeEvent;
 	exports.BaseMethod = BaseMethod;
 	exports.mixin = mixin;
-	exports.http = http;
+	exports.Http = Http;
 	exports.requestAnim = requestAnim;
 	exports.suports = suports;
 
@@ -1016,7 +1043,7 @@
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Dragable).call(this));
 	
 			_this.el = (0, _util.getDOM)(el)[0];
-			_this.target = (0, _util.getDOM)(el)[0] || _this.el;
+			_this.target = (0, _util.getDOM)(options.target)[0] || _this.el;
 			_this.initFn('begin', 'move', 'end');
 			_this.setup();
 			return _this;
@@ -1207,9 +1234,9 @@
 	    icon = (0, _util.getDOM)('#icon')[0],
 	    msg = (0, _util.getDOM)('#msg')[0];
 	
-	(0, _dialog.dialog)('loading');
+	// dialog('loading');
 	(0, _util.getDOM)('#btn')[0].onclick = function () {
-		(0, _dialog.dialog)(type.value, msg.value, icon.value).on('ok', function (event) {
+		_dialog.Dialog[type.value](msg.value, icon.value).on('ok', function (event) {
 			console.log('click ok button');
 		}).on('cancel', function (event) {
 			console.log('click cancel button');
@@ -1218,7 +1245,7 @@
 		if (type.value == 'loading') {
 			setTimeout(function () {
 				var second = 5;
-				var dg = (0, _dialog.dialog)('prompt', second + '秒后自动关闭loading', 6000)
+				var dialog = _dialog.Dialog.prompt(second + '秒后自动关闭loading', 6000)
 				/*.update((scope) => {
 	   	setTimeout(function loop() {
 	   		second--;
@@ -1229,7 +1256,7 @@
 	   	}, 1000);
 	   })*/
 				.on('ready', function () {
-					return (0, _dialog.dialog)('close loading');
+					return _dialog.Dialog.closeLoading();
 				});
 			}, 1000);
 		}

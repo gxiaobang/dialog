@@ -3,7 +3,7 @@
  */
 
 import { isFunction, isArray, 
-	getIndex, getDOM, http, 
+	getIndex, getDOM, Http, 
 	addEvent, removeEvent,
 	parseDOM, mixin, BaseMethod } from './util';
 
@@ -47,8 +47,8 @@ const defaults = {
 		}
 	}
 };
-var guide = 0;
 
+var guide = 0;
 class Dialog extends BaseMethod {
 	constructor(...args) {
 		super();
@@ -84,29 +84,24 @@ class Dialog extends BaseMethod {
 
 	// 异步加载页面
 	load() {
-		var that = this;
-		http({ 
-			url: this.url, 
-			method: this.method, 
-			param: this.param,
-			success(html) {
-				that.create();
-				that.render(html);
-				that.events();
-				that.flex();
-				that.position();
-				that.show();
-			},
-			beforeSend() {
-				that.loading()
-			},
-			complete() {
-				that.closeLoading()
-			},
-			error(statusText) {
+		this.loading();
+		Http.get('test.html', this.param)
+			.on('complete', () => {
+				this.closeLoading();
+			})
+			.on('success', (html) => {
+				this.title = '默认标题';
+				this.btns = [{ text: '保存', style: 'primary' }];
+				this.create();
+				this.events();
+				this.render(html);
+				this.flex();
+				this.position();
+				this.show();
+			})
+			.on('error', () => {
 				this.alert(statusText, 'error');
-			}
-		});
+			});
 	}
 
 	// 提示
@@ -137,6 +132,7 @@ class Dialog extends BaseMethod {
 			if (!mask) {
 				mask = parseDOM(defaults.templ.loading()).children[0];
 				mask.id = '__loading';
+				mask.style.zIndex = 9999;
 				document.body.appendChild(mask);
 			}
 			else {
@@ -146,7 +142,7 @@ class Dialog extends BaseMethod {
 		guide++;
 	}
 	closeLoading() {
-		guide--;
+		if (guide > 0) guide--;
 		if (guide == 0) {
 			// dg.destory();
 			var mask = getDOM('#__loading')[0];
@@ -169,6 +165,7 @@ class Dialog extends BaseMethod {
 			case 'load':
 				this.url = args[1];
 				this.param = args[2];
+				this.title = args[3];
 				this[ this.type ]();
 				break;
 			case 'loading':
@@ -216,7 +213,7 @@ class Dialog extends BaseMethod {
 	}
 
 	render(html) {
-		this.content.appendChild(parseDOM(html));
+		this.body.appendChild(parseDOM(html));
 	}
 
 	// 定位
@@ -308,7 +305,7 @@ class Dialog extends BaseMethod {
 		});
 
 		this.resize();
-		new Dragable(this.panel);
+		new Dragable(this.panel, { target: this.heading });
 	}
 
 	// 窗口resize
@@ -336,6 +333,25 @@ class Dialog extends BaseMethod {
 		fn && fn(this.scope);
 		return this;
 	}*/
+
+	static alert(msg, icon) {
+		return new Dialog('alert', msg, icon);
+	}
+	static confirm(msg, icon) {
+		return new Dialog('confirm', msg, icon);
+	}
+	static prompt(msg, icon) {
+		return new Dialog('confirm', msg, icon);
+	}
+	static loading() {
+		return new Dialog('loading');
+	}
+	static closeLoading() {
+		return new Dialog('close loading');
+	}
+	static load(url, param, title) {
+		return new Dialog('load', url, param, title);
+	}
 }
 
 /*dialog('alert', '确认框', 'warn')
@@ -370,5 +386,6 @@ dialog('loading');
 // close loading
 dialog('close loading');*/
 
-
-export const dialog = (...args) => new Dialog(...args);
+// 全局
+global.Dialog = Dialog;
+export { Dialog };

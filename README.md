@@ -16,7 +16,7 @@ function ok() {
 function cancel() {
     console.log('click cancel button');
 }
-var dg = dialog('confirm', '我是信息框内容', 'inquiry')
+var dialog = Dialog.confirm(我是信息框内容', 'inquiry')
 	.on('ok', ok)
 	.on('cancel', cancel);
 ```

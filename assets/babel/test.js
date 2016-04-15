@@ -1,4 +1,4 @@
-import { dialog } from './dialog.js';
+import { Dialog } from './dialog.js';
 import { getDOM } from './util.js';
 
 
@@ -6,9 +6,9 @@ var type = getDOM('#type')[0],
 		icon = getDOM('#icon')[0],
 		msg = getDOM('#msg')[0];
 
-dialog('loading');
+// dialog('loading');
 getDOM('#btn')[0].onclick = () => {
-	dialog(type.value, msg.value, icon.value)
+	Dialog[ type.value ](msg.value, icon.value)
 		.on('ok', (event) => {
 			console.log('click ok button');
 		})
@@ -19,7 +19,7 @@ getDOM('#btn')[0].onclick = () => {
 	if (type.value == 'loading') {
 		setTimeout(() => {
 			var second = 5;
-			var dg = dialog('prompt', `${second}秒后自动关闭loading`, 6000)
+			var dialog = Dialog.prompt(`${second}秒后自动关闭loading`, 6000)
 				/*.update((scope) => {
 					setTimeout(function loop() {
 						second--;
@@ -29,7 +29,7 @@ getDOM('#btn')[0].onclick = () => {
 						}
 					}, 1000);
 				})*/
-				.on('ready', () => dialog('close loading'));
+				.on('ready', () => Dialog.closeLoading());
 		}, 1000);
 	} 
 };
