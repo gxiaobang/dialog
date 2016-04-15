@@ -94,8 +94,7 @@
 			}
 		}
 	};
-	var guide = 0,
-	    dg;
+	var guide = 0;
 	
 	var Dialog = function (_BaseMethod) {
 		_inherits(Dialog, _BaseMethod);
@@ -105,14 +104,7 @@
 	
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Dialog).call(this));
 	
-			_this.fn = {
-				ready: [],
-				ok: [],
-				cancel: [],
-				// 按钮顺序
-				order: [],
-				close: []
-			};
+			_this.initFn('ready', 'ok', 'cancel', 'order', 'close', 'ready');
 			_this.setup.apply(_this, arguments);
 			return _this;
 		}
@@ -178,6 +170,8 @@
 		}, {
 			key: 'prompt',
 			value: function prompt(msg, icon) {
+				var _this2 = this;
+	
 				var ms = arguments.length <= 2 || arguments[2] === undefined ? 3000 : arguments[2];
 	
 				var prompt = (0, _util.getDOM)('#__prompt')[0],
@@ -193,6 +187,7 @@
 				prompt.style.display = 'block';
 				timer = setTimeout(function () {
 					prompt.style.display = 'none';
+					_this2.trigger(_this2.fn.ready, prompt);
 				}, ms);
 				prompt.setAttribute('data-timer', timer);
 			}
@@ -203,8 +198,14 @@
 			key: 'loading',
 			value: function loading() {
 				if (guide == 0) {
-					dg = this;
-					document.body.appendChild((0, _util.parseDOM)(defaults.templ.loading()));
+					var mask = (0, _util.getDOM)('#__loading')[0];
+					if (!mask) {
+						mask = (0, _util.parseDOM)(defaults.templ.loading()).children[0];
+						mask.id = '__loading';
+						document.body.appendChild(mask);
+					} else {
+						mask.style.display = 'block';
+					}
 				}
 				guide++;
 			}
@@ -213,8 +214,11 @@
 			value: function closeLoading() {
 				guide--;
 				if (guide == 0) {
-					dg.destory();
-					dg = null;
+					// dg.destory();
+					var mask = (0, _util.getDOM)('#__loading')[0];
+					if (mask) {
+						mask.style.display = 'none';
+					}
 				}
 			}
 	
@@ -250,20 +254,20 @@
 		}, {
 			key: 'create',
 			value: function create() {
-				var _this2 = this;
+				var _this3 = this;
 	
 				var templ = (0, _util.parseDOM)(defaults.templ.panel(this.title,
 				// content
 				function () {
-					if (_this2.msg) {
-						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + _this2.icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + _this2.msg + '</div>\n\t\t\t\t\t\t';
+					if (_this3.msg) {
+						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + _this3.icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + _this3.msg + '</div>\n\t\t\t\t\t\t';
 					} else {
 						return '';
 					}
 				}(),
 				// btns
 				function () {
-					return _this2.btns.map(function (item) {
+					return _this3.btns.map(function (item) {
 						return '<button type="button" class="btn btn-' + item.style + '">' + item.text + '</button>';
 					}).join('\n');
 				}()));
@@ -318,10 +322,10 @@
 		}, {
 			key: 'hide',
 			value: function hide() {
-				var _this3 = this;
+				var _this4 = this;
 	
 				new _fx.Transition(this.mask, { to: { opacity: 0 } }).on('complete', function () {
-					return _this3.destory();
+					return _this4.destory();
 				}).run();
 			}
 	
@@ -391,16 +395,36 @@
 		}, {
 			key: 'resize',
 			value: function resize() {
-				var _this4 = this;
+				var _this5 = this;
 	
 				var handler = function handler() {
-					return _this4.position();
+					return _this5.position();
 				};
 				(0, _util.addEvent)(window, 'resize', handler);
 				this._off = function () {
 					return (0, _util.removeEvent)(window, 'resize', handler);
 				};
 			}
+	
+			// 更新数据
+			/*update(fn) {
+	  	var that = this;
+	  	if (!this.scope) {
+	  		this.scope = {
+	  			set msg(value) {
+	  				that.msg = value;
+	  				var prompt = getDOM('#__prompt')[0];
+	  				if (prompt) {
+	  					prompt.innerHTML = value;
+	  				}
+	  			}
+	  		};
+	  	}
+	  
+	  	fn && fn(this.scope);
+	  	return this;
+	  }*/
+	
 		}]);
 	
 		return Dialog;
@@ -993,11 +1017,6 @@
 	
 			_this.el = (0, _util.getDOM)(el)[0];
 			_this.target = (0, _util.getDOM)(el)[0] || _this.el;
-			_this.fn = {
-				begin: [],
-				move: [],
-				end: []
-			};
 			_this.initFn('begin', 'move', 'end');
 			_this.setup();
 			return _this;
@@ -1188,12 +1207,32 @@
 	    icon = (0, _util.getDOM)('#icon')[0],
 	    msg = (0, _util.getDOM)('#msg')[0];
 	
+	(0, _dialog.dialog)('loading');
 	(0, _util.getDOM)('#btn')[0].onclick = function () {
 		(0, _dialog.dialog)(type.value, msg.value, icon.value).on('ok', function (event) {
 			console.log('click ok button');
 		}).on('cancel', function (event) {
 			console.log('click cancel button');
 		});
+	
+		if (type.value == 'loading') {
+			setTimeout(function () {
+				var second = 5;
+				var dg = (0, _dialog.dialog)('prompt', second + '秒后自动关闭loading', 6000)
+				/*.update((scope) => {
+	   	setTimeout(function loop() {
+	   		second--;
+	   		if (second > 0) {
+	   			scope.msg = `${second}秒后自动关闭loading`;
+	   			setTimeout(loop, 1000);
+	   		}
+	   	}, 1000);
+	   })*/
+				.on('ready', function () {
+					return (0, _dialog.dialog)('close loading');
+				});
+			}, 1000);
+		}
 	};
 
 /***/ }

@@ -6,6 +6,7 @@ var type = getDOM('#type')[0],
 		icon = getDOM('#icon')[0],
 		msg = getDOM('#msg')[0];
 
+dialog('loading');
 getDOM('#btn')[0].onclick = () => {
 	dialog(type.value, msg.value, icon.value)
 		.on('ok', (event) => {
@@ -14,4 +15,21 @@ getDOM('#btn')[0].onclick = () => {
 		.on('cancel', (event) => {
 			console.log('click cancel button');
 		});
+
+	if (type.value == 'loading') {
+		setTimeout(() => {
+			var second = 5;
+			var dg = dialog('prompt', `${second}秒后自动关闭loading`, 6000)
+				/*.update((scope) => {
+					setTimeout(function loop() {
+						second--;
+						if (second > 0) {
+							scope.msg = `${second}秒后自动关闭loading`;
+							setTimeout(loop, 1000);
+						}
+					}, 1000);
+				})*/
+				.on('ready', () => dialog('close loading'));
+		}, 1000);
+	} 
 };

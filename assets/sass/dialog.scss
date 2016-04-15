@@ -3,6 +3,7 @@
 @import "_utilities";
 @import "_button";
 @import "_panel";
+@import "_keyframes";
 
 // 遮罩
 .mask {
@@ -32,4 +33,77 @@
   font-weight: bold;
 	background-color: #ffeebc;
 	z-index: 99;
+}
+
+.loading {
+	// 居中
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-color: #fff;
+	// animation: rotate 1s linear infinite both;
+
+	&:before {
+		content: "";
+		position: absolute;
+		left: 5px;
+		top: 5px;
+		right: 5px;
+		bottom: 5px;
+		// border: 3px solid #5492f3;
+		// background-color: #5492f3;
+		background-image: radial-gradient(circle at bottom left, rgba(84, 128, 217, 1), rgba(84, 128, 217, .3));
+		border-radius: 50%;
+	}
+
+	&:after {
+		content: "";
+		position: absolute;
+		left: 8px;
+		top: 8px;
+		right: 8px;
+		bottom: 8px;
+		// border: 3px solid #5492f3;
+		background: #fff;
+		border-radius: 50%;
+	}
+
+	/* .loading-shape {
+		display: inline-block;
+		
+		vertical-align: middle;
+		margin-top: -4px;
+		margin-right: 8px;
+
+		&.loading-css3 {
+			position: relative;
+			width: 24px;
+			height: 24px;
+		  border-radius: 50%;
+			
+			background: rgb(84, 128, 217);
+		  background: radial-gradient(circle at bottom left, rgba(84, 128, 217, 1), rgba(84, 128, 217, .3));
+		  @include animation(rotate 1s linear infinite both);
+		  -ms-animation: none;
+
+		  &:after {
+		  	content: "";
+		  	position: absolute;
+		  	left: $border-width;
+		  	top: $border-width;
+		  	bottom: $border-width;
+		  	right: $border-width;
+
+		  	border-radius: 50%;
+		  	background: #FBFBFB;
+		  }
+		}
+	} */
 }

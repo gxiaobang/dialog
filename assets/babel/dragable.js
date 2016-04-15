@@ -8,11 +8,6 @@ class Dragable extends BaseMethod {
 		super();
 		this.el = getDOM(el)[0];
 		this.target = getDOM(el)[0] || this.el;
-		this.fn = {
-			begin: [],
-			move: [],
-			end: []
-		};
 		this.initFn('begin', 'move', 'end');
 		this.setup();
 	}

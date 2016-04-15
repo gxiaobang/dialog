@@ -47,20 +47,12 @@ const defaults = {
 		}
 	}
 };
-var guide = 0,
-		dg;
+var guide = 0;
 
 class Dialog extends BaseMethod {
 	constructor(...args) {
 		super();
-		this.fn = {
-			ready: [],
-			ok: [],
-			cancel: [],
-			// 按钮顺序
-			order: [],
-			close: []
-		};
+		this.initFn('ready', 'ok', 'cancel', 'order', 'close', 'ready');
 		this.setup(...args);
 	}
 
@@ -133,6 +125,7 @@ class Dialog extends BaseMethod {
 		prompt.style.display = 'block';
 		timer = setTimeout(() => {
 			prompt.style.display = 'none';
+			this.trigger(this.fn.ready, prompt);
 		}, ms);
 		prompt.setAttribute('data-timer', timer);
 	}
@@ -140,18 +133,26 @@ class Dialog extends BaseMethod {
 	// 加载中
 	loading() {
 		if (guide == 0) {
-			dg = this;
-			document.body.appendChild(
-					parseDOM(defaults.templ.loading())
-				);
+			var mask = getDOM('#__loading')[0];
+			if (!mask) {
+				mask = parseDOM(defaults.templ.loading()).children[0];
+				mask.id = '__loading';
+				document.body.appendChild(mask);
+			}
+			else {
+				mask.style.display = 'block';
+			}
 		}
 		guide++;
 	}
 	closeLoading() {
 		guide--;
 		if (guide == 0) {
-			dg.destory();
-			dg = null;
+			// dg.destory();
+			var mask = getDOM('#__loading')[0];
+			if (mask) {
+				mask.style.display = 'none';
+			}
 		}
 	}
 
@@ -316,6 +317,25 @@ class Dialog extends BaseMethod {
 		addEvent(window, 'resize', handler);
 		this._off = () => removeEvent(window, 'resize', handler);
 	}
+
+	// 更新数据
+	/*update(fn) {
+		var that = this;
+		if (!this.scope) {
+			this.scope = {
+				set msg(value) {
+					that.msg = value;
+					var prompt = getDOM('#__prompt')[0];
+					if (prompt) {
+						prompt.innerHTML = value;
+					}
+				}
+			};
+		}
+
+		fn && fn(this.scope);
+		return this;
+	}*/
 }
 
 /*dialog('alert', '确认框', 'warn')
