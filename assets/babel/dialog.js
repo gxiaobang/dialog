@@ -48,20 +48,27 @@ const defaults = {
 	}
 };
 
+// 包装dialog方法
+function packaging(type, args) {
+	var dialog = new Dialog();
+	dialog[ type ].apply(dialog, args);
+	return dialog;
+}
+
 var guide = 0;
 class Dialog extends BaseMethod {
-	constructor(...args) {
+	constructor() {
 		super();
 		this.initFn('ready', 'ok', 'cancel', 'order', 'close', 'ready');
-		this.setup(...args);
+		// this.setup();
 	}
 
-	alert() {
+	alert(msg, icon) {
 		this.title = '提示框';
 		this.btns = [
 			{ text: '确定', style: 'primary' }
 		];
-		this.create();
+		this.create(msg, icon);
 		this.events();
 		this.flex();
 		this.position();
@@ -69,13 +76,13 @@ class Dialog extends BaseMethod {
 	}
 
 	// 确认提示框
-	confirm() {
+	confirm(msg, icon) {
 		this.title = '提示框';
 		this.btns = [
 			{ text: '确定', style: 'primary' },
 			{ text: '取消', style: 'cancel' }
 		];
-		this.create();
+		this.create(msg, icon);
 		this.events();
 		this.flex();
 		this.position();
@@ -87,7 +94,7 @@ class Dialog extends BaseMethod {
 		this.loading();
 		Http.get('test.html', this.param)
 			.on('complete', () => {
-				this.closeLoading();
+				this.loading('off');
 			})
 			.on('success', (html) => {
 				this.title = '默认标题';
@@ -126,69 +133,43 @@ class Dialog extends BaseMethod {
 	}
 
 	// 加载中
-	loading() {
-		if (guide == 0) {
-			var mask = getDOM('#__loading')[0];
-			if (!mask) {
-				mask = parseDOM(defaults.templ.loading()).children[0];
-				mask.id = '__loading';
-				mask.style.zIndex = 9991;
-				document.body.appendChild(mask);
-			}
-			else {
-				mask.style.display = 'block';
+	loading(state) {
+		if (state == 'off') {
+			if (guide > 0) guide--;
+			if (guide == 0) {
+				// dg.destory();
+				var mask = getDOM('#__loading')[0];
+				if (mask) {
+					mask.style.display = 'none';
+				}
 			}
 		}
-		guide++;
-	}
-	closeLoading() {
-		if (guide > 0) guide--;
-		if (guide == 0) {
-			// dg.destory();
-			var mask = getDOM('#__loading')[0];
-			if (mask) {
-				mask.style.display = 'none';
+		else {
+			if (guide == 0) {
+				var mask = getDOM('#__loading')[0];
+				if (!mask) {
+					mask = parseDOM(defaults.templ.loading()).children[0];
+					mask.id = '__loading';
+					mask.style.zIndex = 9991;
+					document.body.appendChild(mask);
+				}
+				else {
+					mask.style.display = 'block';
+				}
 			}
-		}
-	}
-
-	// 设置
-	setup(...args) {
-		this.type = args[0];
-		switch (this.type) {
-			case 'alert':
-			case 'confirm':
-				this.msg = args[1];
-				this.icon = args[2];
-				this[ this.type ]();
-				break;
-			case 'load':
-				this.url = args[1];
-				this.param = args[2];
-				this.title = args[3];
-				this[ this.type ]();
-				break;
-			case 'loading':
-				this.loading();
-				break;
-			case 'close loading':
-				this.closeLoading();
-				break;
-			case 'prompt':
-				this.prompt(args[1], args[2], args[3]);
-				break;
+			guide++;
 		}
 	}
 
-	create() {
+	create(msg, icon) {
 		var templ = parseDOM(defaults.templ.panel(
 				this.title,
 				// content
 				(() => {
-					if (this.msg) {
+					if (msg) {
 						return `
-							<div class="icon icon-${this.icon}"></div>
-							<div class="panel-msg">${this.msg}</div>
+							<div class="icon icon-${icon}"></div>
+							<div class="panel-msg">${msg}</div>
 						`;
 					}
 					else {
@@ -261,20 +242,7 @@ class Dialog extends BaseMethod {
 	
 
 	events() {
-		
-		/*for (let i = 0, btn; btn = this.btns[i]; i++) {
-			switch (btn.getAttribute('data-duty')) {
-				case 'ok':
-					addEvent(btn, 'click', this.fn.ok);
-					break;
-				case 'cancel':
-					addEvent(btn, 'click', this.fn.cancel);
-					break;
-			}
-			if (this.fn.order[i]) {
-				addEvent(btn, 'click', this.fn.order[i]);
-			}
-		}*/
+	
 		var that = this;
 		// 事件委托
 		addEvent(this.footing, 'click', 'button', function (event) {
@@ -334,57 +302,23 @@ class Dialog extends BaseMethod {
 		return this;
 	}*/
 
-	static alert(msg, icon) {
-		return new Dialog('alert', msg, icon);
+	// 静态方法
+	static alert() {
+		return packaging('alert', arguments);
 	}
-	static confirm(msg, icon) {
-		return new Dialog('confirm', msg, icon);
+	static confirm() {
+		return packaging('confirm', arguments);
 	}
-	static prompt(msg, icon) {
-		return new Dialog('prompt', msg, icon);
+	static prompt() {
+		return packaging('prompt', arguments);
 	}
 	static loading() {
-		return new Dialog('loading');
+		return packaging('loading', arguments);
 	}
-	static closeLoading() {
-		return new Dialog('close loading');
-	}
-	static load(url, param, title) {
-		return new Dialog('load', url, param, title);
+	static load() {
+		return packaging('load', arguments);
 	}
 }
-
-/*dialog('alert', '确认框', 'warn')
-	.on('ok', () => {
-		console.log('点了确定按钮');
-	});
-
-dialog('confirm', '选择确认框', 'inquiry')
-	.on('ok', () => {
-		console.log('点了确定按钮');
-	})
-	.on('cancel', () => {
-		console.log('点了取消按钮');
-	});
-
-dialog('load', '/page', { id: '001' })
-	.on('ready', () => {
-		console.log('页面加载完成');
-	})
-	.on('ok', () => {
-		console.log('点了确定按钮');
-	})
-	.on('order', () => {
-		console.log('第一个按钮')
-	})
-	.on('order', () => {
-		console.log('第二个按钮')
-	});
-
-// loading
-dialog('loading');
-// close loading
-dialog('close loading');*/
 
 // 全局
 global.Dialog = Dialog;

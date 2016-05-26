@@ -95,6 +95,13 @@
 		}
 	};
 	
+	// 包装dialog方法
+	function packaging(type, args) {
+		var dialog = new Dialog();
+		dialog[type].apply(dialog, args);
+		return dialog;
+	}
+	
 	var guide = 0;
 	
 	var Dialog = function (_BaseMethod) {
@@ -106,16 +113,16 @@
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Dialog).call(this));
 	
 			_this.initFn('ready', 'ok', 'cancel', 'order', 'close', 'ready');
-			_this.setup.apply(_this, arguments);
+			// this.setup();
 			return _this;
 		}
 	
 		_createClass(Dialog, [{
 			key: 'alert',
-			value: function alert() {
+			value: function alert(msg, icon) {
 				this.title = '提示框';
 				this.btns = [{ text: '确定', style: 'primary' }];
-				this.create();
+				this.create(msg, icon);
 				this.events();
 				this.flex();
 				this.position();
@@ -126,10 +133,10 @@
 	
 		}, {
 			key: 'confirm',
-			value: function confirm() {
+			value: function confirm(msg, icon) {
 				this.title = '提示框';
 				this.btns = [{ text: '确定', style: 'primary' }, { text: '取消', style: 'cancel' }];
-				this.create();
+				this.create(msg, icon);
 				this.events();
 				this.flex();
 				this.position();
@@ -145,7 +152,7 @@
 	
 				this.loading();
 				_util.Http.get('test.html', this.param).on('complete', function () {
-					_this2.closeLoading();
+					_this2.loading('off');
 				}).on('success', function (html) {
 					_this2.title = '默认标题';
 					_this2.btns = [{ text: '保存', style: 'primary' }];
@@ -191,73 +198,41 @@
 	
 		}, {
 			key: 'loading',
-			value: function loading() {
-				if (guide == 0) {
-					var mask = (0, _util.getDOM)('#__loading')[0];
-					if (!mask) {
-						mask = (0, _util.parseDOM)(defaults.templ.loading()).children[0];
-						mask.id = '__loading';
-						mask.style.zIndex = 9991;
-						document.body.appendChild(mask);
-					} else {
-						mask.style.display = 'block';
+			value: function loading(state) {
+				if (state == 'off') {
+					if (guide > 0) guide--;
+					if (guide == 0) {
+						// dg.destory();
+						var mask = (0, _util.getDOM)('#__loading')[0];
+						if (mask) {
+							mask.style.display = 'none';
+						}
 					}
-				}
-				guide++;
-			}
-		}, {
-			key: 'closeLoading',
-			value: function closeLoading() {
-				if (guide > 0) guide--;
-				if (guide == 0) {
-					// dg.destory();
-					var mask = (0, _util.getDOM)('#__loading')[0];
-					if (mask) {
-						mask.style.display = 'none';
+				} else {
+					if (guide == 0) {
+						var mask = (0, _util.getDOM)('#__loading')[0];
+						if (!mask) {
+							mask = (0, _util.parseDOM)(defaults.templ.loading()).children[0];
+							mask.id = '__loading';
+							mask.style.zIndex = 9991;
+							document.body.appendChild(mask);
+						} else {
+							mask.style.display = 'block';
+						}
 					}
-				}
-			}
-	
-			// 设置
-	
-		}, {
-			key: 'setup',
-			value: function setup() {
-				this.type = arguments.length <= 0 ? undefined : arguments[0];
-				switch (this.type) {
-					case 'alert':
-					case 'confirm':
-						this.msg = arguments.length <= 1 ? undefined : arguments[1];
-						this.icon = arguments.length <= 2 ? undefined : arguments[2];
-						this[this.type]();
-						break;
-					case 'load':
-						this.url = arguments.length <= 1 ? undefined : arguments[1];
-						this.param = arguments.length <= 2 ? undefined : arguments[2];
-						this.title = arguments.length <= 3 ? undefined : arguments[3];
-						this[this.type]();
-						break;
-					case 'loading':
-						this.loading();
-						break;
-					case 'close loading':
-						this.closeLoading();
-						break;
-					case 'prompt':
-						this.prompt(arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2], arguments.length <= 3 ? undefined : arguments[3]);
-						break;
+					guide++;
 				}
 			}
 		}, {
 			key: 'create',
-			value: function create() {
+			value: function create(msg, icon) {
 				var _this4 = this;
 	
 				var templ = (0, _util.parseDOM)(defaults.templ.panel(this.title,
 				// content
 				function () {
-					if (_this4.msg) {
-						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + _this4.icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + _this4.msg + '</div>\n\t\t\t\t\t\t';
+					if (msg) {
+						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + msg + '</div>\n\t\t\t\t\t\t';
 					} else {
 						return '';
 					}
@@ -341,19 +316,6 @@
 			key: 'events',
 			value: function events() {
 	
-				/*for (let i = 0, btn; btn = this.btns[i]; i++) {
-	   	switch (btn.getAttribute('data-duty')) {
-	   		case 'ok':
-	   			addEvent(btn, 'click', this.fn.ok);
-	   			break;
-	   		case 'cancel':
-	   			addEvent(btn, 'click', this.fn.cancel);
-	   			break;
-	   	}
-	   	if (this.fn.order[i]) {
-	   		addEvent(btn, 'click', this.fn.order[i]);
-	   	}
-	   }*/
 				var that = this;
 				// 事件委托
 				(0, _util.addEvent)(this.footing, 'click', 'button', function (event) {
@@ -422,72 +384,37 @@
 	  	return this;
 	  }*/
 	
+			// 静态方法
+	
 		}], [{
 			key: 'alert',
-			value: function alert(msg, icon) {
-				return new Dialog('alert', msg, icon);
+			value: function alert() {
+				return packaging('alert', arguments);
 			}
 		}, {
 			key: 'confirm',
-			value: function confirm(msg, icon) {
-				return new Dialog('confirm', msg, icon);
+			value: function confirm() {
+				return packaging('confirm', arguments);
 			}
 		}, {
 			key: 'prompt',
-			value: function prompt(msg, icon) {
-				return new Dialog('prompt', msg, icon);
+			value: function prompt() {
+				return packaging('prompt', arguments);
 			}
 		}, {
 			key: 'loading',
 			value: function loading() {
-				return new Dialog('loading');
-			}
-		}, {
-			key: 'closeLoading',
-			value: function closeLoading() {
-				return new Dialog('close loading');
+				return packaging('loading', arguments);
 			}
 		}, {
 			key: 'load',
-			value: function load(url, param, title) {
-				return new Dialog('load', url, param, title);
+			value: function load() {
+				return packaging('load', arguments);
 			}
 		}]);
 	
 		return Dialog;
 	}(_util.BaseMethod);
-	
-	/*dialog('alert', '确认框', 'warn')
-		.on('ok', () => {
-			console.log('点了确定按钮');
-		});
-	
-	dialog('confirm', '选择确认框', 'inquiry')
-		.on('ok', () => {
-			console.log('点了确定按钮');
-		})
-		.on('cancel', () => {
-			console.log('点了取消按钮');
-		});
-	
-	dialog('load', '/page', { id: '001' })
-		.on('ready', () => {
-			console.log('页面加载完成');
-		})
-		.on('ok', () => {
-			console.log('点了确定按钮');
-		})
-		.on('order', () => {
-			console.log('第一个按钮')
-		})
-		.on('order', () => {
-			console.log('第二个按钮')
-		});
-	
-	// loading
-	dialog('loading');
-	// close loading
-	dialog('close loading');*/
 	
 	// 全局
 	
@@ -857,6 +784,18 @@
 		return target;
 	}
 	
+	// 模板
+	function templ(str) {
+		for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+			args[_key4 - 1] = arguments[_key4];
+		}
+	
+		str = str.replace(/\{(\d+)\}/gm, function (m, n) {
+			return args[n] || '';
+		});
+		return str;
+	}
+	
 	// http请求
 	
 	var Http = function (_BaseMethod) {
@@ -997,6 +936,7 @@
 	exports.isArray = isArray;
 	exports.isString = isString;
 	exports.isFunction = isFunction;
+	exports.forEach = forEach;
 	exports.getIndex = getIndex;
 	exports.getDOM = getDOM;
 	exports.parseDOM = parseDOM;
@@ -1256,7 +1196,7 @@
 	   	}, 1000);
 	   })*/
 				.on('ready', function () {
-					return _dialog.Dialog.closeLoading();
+					return _dialog.Dialog.loading('off');
 				});
 			}, 1000);
 		}

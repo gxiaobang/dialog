@@ -311,6 +311,12 @@ function mixin(target, ...sources) {
 	return target;
 }
 
+// 模板
+function templ(str, ...args) {
+	str = str.replace(/\{(\d+)\}/gm, (m, n) => args[n] || '');
+	return str;
+}
+
 // http请求
 class Http extends BaseMethod {
 	constructor({ method = 'GET', url = '', param = null }) {
@@ -409,6 +415,7 @@ var suports = {
 
 export { 
 	isObject, isNumber, isArray, isString, isFunction,
+	forEach,
 	getIndex, getDOM, 
 	parseDOM, getStyle, setStyle, 
 	addEvent, removeEvent,

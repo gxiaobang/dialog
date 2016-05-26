@@ -29,7 +29,7 @@ getDOM('#btn')[0].onclick = () => {
 						}
 					}, 1000);
 				})*/
-				.on('ready', () => Dialog.closeLoading());
+				.on('ready', () => Dialog.loading('off'));
 		}, 1000);
 	} 
 };
