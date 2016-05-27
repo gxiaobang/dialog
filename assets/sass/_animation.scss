@@ -1,0 +1,15 @@
+/**
+ * animation
+ */
+
+// 扩散
+.spreadIn {
+	animation: spreadIn .3s both;
+}
+.spreadOut {
+	animation: spreadOut .5s both;
+}
+
+.fadeOut {
+	animation: fadeOut .4s both;
+}

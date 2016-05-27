@@ -1,13 +1,13 @@
 import { Dialog } from './dialog.js';
-import { getDOM } from './util.js';
+import { $s } from './util.js';
 
 
-var type = getDOM('#type')[0],
-		icon = getDOM('#icon')[0],
-		msg = getDOM('#msg')[0];
+var type = $s('#type')[0],
+		icon = $s('#icon')[0],
+		msg = $s('#msg')[0];
 
 // dialog('loading');
-getDOM('#btn')[0].onclick = () => {
+$s('#btn')[0].onclick = () => {
 	Dialog[ type.value ](msg.value, icon.value)
 		.on('ok', (event) => {
 			console.log('click ok button');

@@ -2,8 +2,6 @@
  * 混合
  */
 
-$prefix-list: (-webkit-, -moz-, -ms-, -o-, "");
-
 @mixin clearfix() {
   &:before,
   &:after {
@@ -15,43 +13,41 @@ $prefix-list: (-webkit-, -moz-, -ms-, -o-, "");
   }
 }
 
-@mixin prefix($prop, $value) {
-  @each $pre in $prefix-list {
-    #{$pre}-#{$prop}: $value;
+// keyframes动画帧
+@mixin frames-fade($a, $b) {
+  0% {
+    opacity: $a;
+  }
+  100% {
+    opacity: $b;
   }
 }
-
-// 阴影
-@mixin box-shadow($value) {
-  @include prefix(box-shadow, $value);
-}
-
-// 过渡
-@mixin transition($value) {
-  @include prefix(transition, $value);
-}
-
-// 动画
-@mixin animation($value) {
-  @include prefix(animation, $value);
-}
-
-// 颜色渐变
-@mixin linear-gradien($deg: 0deg, $beginColor: #000, $endColor: #000) {
-  @each $pre in (-webkit-,-moz-,-ms-,-o-) {
-    background-image: #{$pre}linear-gradient($deg, $beginColor, $endColor);
+@mixin frames-scale($a, $b) {
+  0% {
+    transform: scale(#{$a});
+  }
+  100% {
+    transform: scale(#{$b});
   }
 }
-
-// 混合keyframes
-@mixin keyframes($name) {
-  @-webkit-keyframes #{$name} {
-    @content;
+@mixin frames-slide($a, $b) {
+  0% {
+    height: $a;
   }
-  @keyframes #{$name} {
-    @content;
+  100% {
+    height: $b;
   }
 }
+@mixin frames-rotate($a, $b) {
+  0% {
+    transform: rotate(#{$a});
+  }
+  100% {
+    transform: rotate(#{$b});
+  }
+}
+// === End keyframes动画帧 ===
+
 
 // 透明度
 @mixin opacity($value: 1) {
@@ -59,6 +55,13 @@ $prefix-list: (-webkit-, -moz-, -ms-, -o-, "");
   filter: alpha(opacity=#{$value * 100});
 }
 
+// 背景rgba
+@mixin bg-rgba($red: 0, $green: 0, $blue: 0, $opacity: 1) {
+  $hex: ie-hex-str(rgba($red, $green, $blue, $opacity));
+  background-color: rgba($red, $green, $blue, $opacity);
+  // 兼容旧版ie
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startcolorstr=#{$hex},endcolorstr=#{$hex})";
+}
 
 /**
  * 三角形

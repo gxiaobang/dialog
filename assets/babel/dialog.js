@@ -3,12 +3,12 @@
  */
 
 import { isFunction, isArray, 
-	getIndex, getDOM, Http, 
+	getIndex, $s, Http, 
 	addEvent, removeEvent,
 	parseDOM, mixin, BaseMethod } from './util';
 
 import { Dragable } from './dragable.js';
-import { Transition } from './fx.js';
+import fx from './fx.js';
 
 
 const defaults = {
@@ -113,7 +113,7 @@ class Dialog extends BaseMethod {
 
 	// 提示
 	prompt(msg, icon, ms = 3000) {
-		var prompt = getDOM('#__prompt')[0],
+		var prompt = $s('#__prompt')[0],
 				timer;
 		if (!prompt) {
 			prompt = parseDOM(defaults.templ.prompt()).children[0];
@@ -138,7 +138,7 @@ class Dialog extends BaseMethod {
 			if (guide > 0) guide--;
 			if (guide == 0) {
 				// dg.destory();
-				var mask = getDOM('#__loading')[0];
+				var mask = $s('#__loading')[0];
 				if (mask) {
 					mask.style.display = 'none';
 				}
@@ -146,7 +146,7 @@ class Dialog extends BaseMethod {
 		}
 		else {
 			if (guide == 0) {
-				var mask = getDOM('#__loading')[0];
+				var mask = $s('#__loading')[0];
 				if (!mask) {
 					mask = parseDOM(defaults.templ.loading()).children[0];
 					mask.id = '__loading';
@@ -185,11 +185,11 @@ class Dialog extends BaseMethod {
 		
 
 		this.mask = templ.children[0];
-		this.panel = getDOM('.panel', this.mask)[0];
-		this.heading = getDOM('.panel-heading', this.panel)[0];
-		this.body = getDOM('.panel-body', this.panel)[0];
-		this.footing = getDOM('.panel-footing', this.panel)[0];
-		this.btnClose = getDOM('.close', this.heading)[0];
+		this.panel = $s('.panel', this.mask)[0];
+		this.heading = $s('.panel-heading', this.panel)[0];
+		this.body = $s('.panel-body', this.panel)[0];
+		this.footing = $s('.panel-footing', this.panel)[0];
+		this.btnClose = $s('.close', this.heading)[0];
 		document.body.appendChild(templ);
 	}
 
@@ -209,25 +209,12 @@ class Dialog extends BaseMethod {
 
 	// 显示
 	show() {
-		new Transition(this.mask, {
-				from: {
-					opacity: 0
-				},
-				to: {
-					opacity: 1
-				},
-				duration: '300ms'
-			})
-			.on('complete', () => {
-				console.log('transition is complete.');
-			})
-			.run();
+		fx.frame(this.panel, 'spreadIn');
 	}
 	// 隐藏
 	hide() {
-		new Transition(this.mask, { to: { opacity: 0 } })
-			.on('complete', () => this.destory())
-			.run();
+		fx.frame(this.panel, 'spreadOut');
+		fx.frame(this.mask, 'fadeOut', () => this.destory());
 	}
 
 	// 销毁
@@ -290,7 +277,7 @@ class Dialog extends BaseMethod {
 			this.scope = {
 				set msg(value) {
 					that.msg = value;
-					var prompt = getDOM('#__prompt')[0];
+					var prompt = $s('#__prompt')[0];
 					if (prompt) {
 						prompt.innerHTML = value;
 					}

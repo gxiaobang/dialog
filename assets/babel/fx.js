@@ -2,12 +2,19 @@
  * 特效
  */
 
-import { addEvent, removeEvent, getDOM, setStyle, requestAnim, BaseMethod, suports } from './util.js';
+import { 
+	addEvent, removeEvent, 
+	$s, setStyle, 
+	requestAnim, BaseMethod, 
+	suports,
+	addClass, removeClass, hasClass,
+	isString,
+} from './util.js';
 
 class Transition extends BaseMethod {
 	constructor(el, options) {
 		super();
-		this.el = getDOM(el)[0];
+		this.el = $s(el)[0];
 		this.setOptions(options);
 		this.initFn('complete');
 	}
@@ -43,9 +50,34 @@ class Transition extends BaseMethod {
 	}
 }
 
-class Animation extends BaseMethod {
+// 设置动画
+function frame(element, cls, complete) {
+	element = $s(element)[0];
 
+	if (suports.is('animation')) {
+		if (isString(cls)) {
+			cls = cls.trim().split(/\s+/);
+		}
+
+		for (var i = 0; i < cls.length; i++) {
+			element.classList.add(cls[i]);
+		}
+		function handler() {
+			for (var i = 0; i < cls.length; i++) {
+				element.classList.remove(cls[i]);
+			}
+			removeEvent(element, 'webkitAnimationEnd', handler);
+			removeEvent(element, 'animationend', handler);
+			complete && complete();
+		}
+		addEvent(element, 'webkitAnimationEnd', handler);
+		addEvent(element, 'animationend', handler);
+	}
+	else {
+		complete && complete.call(element);
+	}
 }
+
 
 /*new Transition('#el', {
 		form: ,
@@ -61,4 +93,7 @@ new Animation('#el', 'fadeOut')
 	})
 	.run();*/
 
-export { Transition, Animation };
+
+const fx = { frame };
+
+export default fx;

@@ -70,6 +70,10 @@
 	
 	var _fx = __webpack_require__(4);
 	
+	var _fx2 = _interopRequireDefault(_fx);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -176,7 +180,7 @@
 	
 				var ms = arguments.length <= 2 || arguments[2] === undefined ? 3000 : arguments[2];
 	
-				var prompt = (0, _util.getDOM)('#__prompt')[0],
+				var prompt = (0, _util.$s)('#__prompt')[0],
 				    timer;
 				if (!prompt) {
 					prompt = (0, _util.parseDOM)(defaults.templ.prompt()).children[0];
@@ -203,14 +207,14 @@
 					if (guide > 0) guide--;
 					if (guide == 0) {
 						// dg.destory();
-						var mask = (0, _util.getDOM)('#__loading')[0];
+						var mask = (0, _util.$s)('#__loading')[0];
 						if (mask) {
 							mask.style.display = 'none';
 						}
 					}
 				} else {
 					if (guide == 0) {
-						var mask = (0, _util.getDOM)('#__loading')[0];
+						var mask = (0, _util.$s)('#__loading')[0];
 						if (!mask) {
 							mask = (0, _util.parseDOM)(defaults.templ.loading()).children[0];
 							mask.id = '__loading';
@@ -245,11 +249,11 @@
 				}()));
 	
 				this.mask = templ.children[0];
-				this.panel = (0, _util.getDOM)('.panel', this.mask)[0];
-				this.heading = (0, _util.getDOM)('.panel-heading', this.panel)[0];
-				this.body = (0, _util.getDOM)('.panel-body', this.panel)[0];
-				this.footing = (0, _util.getDOM)('.panel-footing', this.panel)[0];
-				this.btnClose = (0, _util.getDOM)('.close', this.heading)[0];
+				this.panel = (0, _util.$s)('.panel', this.mask)[0];
+				this.heading = (0, _util.$s)('.panel-heading', this.panel)[0];
+				this.body = (0, _util.$s)('.panel-body', this.panel)[0];
+				this.footing = (0, _util.$s)('.panel-footing', this.panel)[0];
+				this.btnClose = (0, _util.$s)('.close', this.heading)[0];
 				document.body.appendChild(templ);
 			}
 		}, {
@@ -277,17 +281,7 @@
 		}, {
 			key: 'show',
 			value: function show() {
-				new _fx.Transition(this.mask, {
-					from: {
-						opacity: 0
-					},
-					to: {
-						opacity: 1
-					},
-					duration: '300ms'
-				}).on('complete', function () {
-					console.log('transition is complete.');
-				}).run();
+				_fx2.default.frame(this.panel, 'spreadIn');
 			}
 			// 隐藏
 	
@@ -296,9 +290,10 @@
 			value: function hide() {
 				var _this5 = this;
 	
-				new _fx.Transition(this.mask, { to: { opacity: 0 } }).on('complete', function () {
+				_fx2.default.frame(this.panel, 'spreadOut');
+				_fx2.default.frame(this.mask, 'fadeOut', function () {
 					return _this5.destory();
-				}).run();
+				});
 			}
 	
 			// 销毁
@@ -372,7 +367,7 @@
 	  		this.scope = {
 	  			set msg(value) {
 	  				that.msg = value;
-	  				var prompt = getDOM('#__prompt')[0];
+	  				var prompt = $s('#__prompt')[0];
 	  				if (prompt) {
 	  					prompt.innerHTML = value;
 	  				}
@@ -573,7 +568,7 @@
 	}
 	
 	// 获取dom节点
-	function getDOM(expr) {
+	function $s(expr) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? document : arguments[1];
 	
 		if (isString(expr)) {
@@ -641,7 +636,7 @@
 	function setStyle(el, name, value) {
 	
 		if (isString(el)) {
-			el = getDOM(el)[0];
+			el = $s(el)[0];
 		} else if (isArray(el)) {
 			forEach(el, function (elem) {
 				return setStyle(elem, name, value);
@@ -695,7 +690,7 @@
 		// el.addEventListener(type, fn, false);
 	
 		if (isString(el)) {
-			el = getDOM(el);
+			el = $s(el);
 		}
 	
 		if (el.length) {
@@ -743,7 +738,7 @@
 					target = target.parentNode;
 				}
 			} else {
-				var els = getDOM(expr);
+				var els = $s(expr);
 				els = Array.from(els);
 				while (target !== el) {
 					if (els.indexOf(el) > -1) {
@@ -938,7 +933,7 @@
 	exports.isFunction = isFunction;
 	exports.forEach = forEach;
 	exports.getIndex = getIndex;
-	exports.getDOM = getDOM;
+	exports.$s = $s;
 	exports.parseDOM = parseDOM;
 	exports.getStyle = getStyle;
 	exports.setStyle = setStyle;
@@ -982,8 +977,8 @@
 	
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Dragable).call(this));
 	
-			_this.el = (0, _util.getDOM)(el)[0];
-			_this.target = (0, _util.getDOM)(options.target)[0] || _this.el;
+			_this.el = (0, _util.$s)(el)[0];
+			_this.target = (0, _util.$s)(options.target)[0] || _this.el;
 			_this.initFn('begin', 'move', 'end');
 			_this.setup();
 			return _this;
@@ -1058,7 +1053,6 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.Animation = exports.Transition = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -1080,7 +1074,7 @@
 	
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Transition).call(this));
 	
-			_this.el = (0, _util.getDOM)(el)[0];
+			_this.el = (0, _util.$s)(el)[0];
 			_this.setOptions(options);
 			_this.initFn('complete');
 			return _this;
@@ -1131,17 +1125,40 @@
 		return Transition;
 	}(_util.BaseMethod);
 	
-	var Animation = function (_BaseMethod2) {
-		_inherits(Animation, _BaseMethod2);
+	// 设置动画
 	
-		function Animation() {
-			_classCallCheck(this, Animation);
 	
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(Animation).apply(this, arguments));
+	function frame(element, cls, complete) {
+		element = (0, _util.$s)(element)[0];
+	
+		if (_util.suports.is('animation')) {
+			var i;
+	
+			(function () {
+				var handler = function handler() {
+					for (var i = 0; i < cls.length; i++) {
+						element.classList.remove(cls[i]);
+					}
+					(0, _util.removeEvent)(element, 'webkitAnimationEnd', handler);
+					(0, _util.removeEvent)(element, 'animationend', handler);
+					complete && complete();
+				};
+	
+				if ((0, _util.isString)(cls)) {
+					cls = cls.trim().split(/\s+/);
+				}
+	
+				for (i = 0; i < cls.length; i++) {
+					element.classList.add(cls[i]);
+				}
+	
+				(0, _util.addEvent)(element, 'webkitAnimationEnd', handler);
+				(0, _util.addEvent)(element, 'animationend', handler);
+			})();
+		} else {
+			complete && complete.call(element);
 		}
-	
-		return Animation;
-	}(_util.BaseMethod);
+	}
 	
 	/*new Transition('#el', {
 			form: ,
@@ -1157,8 +1174,9 @@
 		})
 		.run();*/
 	
-	exports.Transition = Transition;
-	exports.Animation = Animation;
+	var fx = { frame: frame };
+	
+	exports.default = fx;
 
 /***/ },
 /* 5 */
@@ -1170,12 +1188,12 @@
 	
 	var _util = __webpack_require__(2);
 	
-	var type = (0, _util.getDOM)('#type')[0],
-	    icon = (0, _util.getDOM)('#icon')[0],
-	    msg = (0, _util.getDOM)('#msg')[0];
+	var type = (0, _util.$s)('#type')[0],
+	    icon = (0, _util.$s)('#icon')[0],
+	    msg = (0, _util.$s)('#msg')[0];
 	
 	// dialog('loading');
-	(0, _util.getDOM)('#btn')[0].onclick = function () {
+	(0, _util.$s)('#btn')[0].onclick = function () {
 		_dialog.Dialog[type.value](msg.value, icon.value).on('ok', function (event) {
 			console.log('click ok button');
 		}).on('cancel', function (event) {

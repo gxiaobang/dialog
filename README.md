@@ -15,8 +15,6 @@ Dialog.prompt(msg)
 
 ### `loading`加载中
 Dialog.loading()
-
-### 'loading'加载中
 Dialog.loading('off')
 
 

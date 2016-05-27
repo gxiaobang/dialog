@@ -1,13 +1,13 @@
 /**
  * 拖动
  */
-import { getDOM, addEvent, removeEvent, BaseMethod } from './util.js';
+import { $s, addEvent, removeEvent, BaseMethod } from './util.js';
 
 class Dragable extends BaseMethod {
 	constructor(el, options) {
 		super();
-		this.el = getDOM(el)[0];
-		this.target = getDOM(options.target)[0] || this.el;
+		this.el = $s(el)[0];
+		this.target = $s(options.target)[0] || this.el;
 		this.initFn('begin', 'move', 'end');
 		this.setup();
 	}

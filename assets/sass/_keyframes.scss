@@ -2,64 +2,24 @@
  * 定义keyframes
  */
 
-// 透明度淡出
-@include keyframes(fadeOut) {
-	0% {
-		@include opacity(1);
-	}
-	100% {
-		@include opacity(0);
-	}
+@keyframes fadeOut {
+	@include frames-fade(1, 0);
 }
 
-// 透明度淡入
-@include keyframes(fadeIn) {
-	0% {
-		@include opacity(0);
-	}
-	100% {
-		@include opacity(1);
-	}
+@keyframes fadeIn {
+	@include frames-fade(0, 1);
 }
 
-@include keyframes(slideDown) {
-	0% {
-		height: 0;
-		overflow: hidden;
-	}
-	100% {
-		height: auto;
-		overflow: hidden;
-	}
+@keyframes rotate {
+	@include frames-rotate(0deg, 360deg);
 }
 
-@include keyframes(slideUp) {
-	0% {
-		height: auto;
-		overflow: hidden;
-	}
-	100% {
-		height: 0;
-		overflow: hidden;
-	}
+@keyframes spreadIn {
+	@include frames-scale(.9, 1);
+	@include frames-fade(0, 1);
 }
 
-/* @include keyframes(scale) {
-	0% {
-		height: auto;
-		overflow: hidden;
-	}
-	100% {
-		height: 0;
-		overflow: hidden;
-	}
-} */
-
-@include keyframes(rotate) {
-	0% {
-		transform: rotate(0deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
+@keyframes spreadOut {
+	@include frames-scale(1, 1.2);
+	@include frames-fade(1, 0);
 }
