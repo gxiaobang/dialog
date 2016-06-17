@@ -71,8 +71,7 @@ class Dialog extends BaseMethod {
 		];
 		this.create(msg, icon);
 		this.events();
-		this.flex();
-		this.position();
+		this.rebuild();
 		this.show();
 	}
 
@@ -81,30 +80,28 @@ class Dialog extends BaseMethod {
 		this.title = '提示框';
 		this.btns = [
 			{ text: '确定', style: 'primary' },
-			{ text: '取消', style: 'cancel' }
+			{ text: '取消', style: 'default' }
 		];
 		this.create(msg, icon);
 		this.events();
-		this.flex();
-		this.position();
+		this.rebuild();
 		this.show();
 	}
 
 	// 异步加载页面
-	load() {
+	load(url, param, title) {
+		this.title = title || '提示框';
+		this.btns = [{ text: '保存', style: 'primary' }];
 		this.loading();
-		Http.get('test.html', this.param)
+		Http.get(url, param, title)
 			.on('complete', () => {
 				this.loading('off');
 			})
 			.on('success', (html) => {
-				this.title = '默认标题';
-				this.btns = [{ text: '保存', style: 'primary' }];
 				this.create();
 				this.events();
 				this.render(html);
-				this.flex();
-				this.position();
+				this.rebuild();
 				this.show();
 			})
 			.on('error', () => {
@@ -169,7 +166,7 @@ class Dialog extends BaseMethod {
 				(() => {
 					if (msg) {
 						return `
-							<div class="icon icon-${icon}"></div>
+							<div class="panel-icon icon-${icon}"></div>
 							<div class="panel-msg">${msg}</div>
 						`;
 					}
@@ -206,6 +203,12 @@ class Dialog extends BaseMethod {
 	// 弹性窗口
 	flex() {
 
+	}
+
+	// 重建
+	rebuild() {
+		this.flex();
+		this.position();
 	}
 
 	// 显示

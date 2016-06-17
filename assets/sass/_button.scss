@@ -3,10 +3,30 @@
  */
 
 .btn {
-	padding: 4px 8px;
+	padding: 6px 10px;
+	border: $border-transparent;
+	border-radius: 4px;
+	outline: none;
+
 	vertical-align: middle;
+	
+	background: none;
+	cursor: pointer;
+
 	// pointer-events: none;
 	&.btn-default {
-			
-	}	
+		border: $border;
+		background-color: $color-default;
+		&:hover {
+			background-color: darken($color-default, 10%);
+		}
+	}
+
+	&.btn-primary {
+		color: $color-default;
+		background-color: $color-primary;
+		&:hover {
+			background-color: darken($color-primary, 10%);
+		}
+	}
 }

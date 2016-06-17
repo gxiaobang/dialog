@@ -6,14 +6,14 @@
 	min-width: 300px;
 	// border: $border;
 	border-radius: 6px;
-	background: $bg-panel;
+	background: $color-default;
 	overflow: hidden;
 	
 	// 标题
 	.panel-heading {
 		padding: 8px 6px;
 		color: #fff;
-		background-color: #337ab7;
+		background-color: $color-primary;
 		cursor: move;
 		@extend .clearfix;
 		.close {
@@ -28,5 +28,19 @@
 	.panel-footing {
 		padding: 6px;
 		text-align: right;
+	}
+	
+	.panel-icon,
+	.panel-msg {
+		display: inline-block;
+		vertical-align: middle;
+	}
+
+	.panel-icon {
+		margin: 4px;
+		@extend .icon;
+		font-size: 42px;
+	}
+	.panel-msg {
 	}
 }

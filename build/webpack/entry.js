@@ -133,8 +133,7 @@
 				this.btns = [{ text: '确定', style: 'primary' }];
 				this.create(msg, icon);
 				this.events();
-				this.flex();
-				this.position();
+				this.rebuild();
 				this.show();
 			}
 	
@@ -144,11 +143,10 @@
 			key: 'confirm',
 			value: function confirm(msg, icon) {
 				this.title = '提示框';
-				this.btns = [{ text: '确定', style: 'primary' }, { text: '取消', style: 'cancel' }];
+				this.btns = [{ text: '确定', style: 'primary' }, { text: '取消', style: 'default' }];
 				this.create(msg, icon);
 				this.events();
-				this.flex();
-				this.position();
+				this.rebuild();
 				this.show();
 			}
 	
@@ -156,20 +154,19 @@
 	
 		}, {
 			key: 'load',
-			value: function load() {
+			value: function load(url, param, title) {
 				var _this2 = this;
 	
+				this.title = title || '提示框';
+				this.btns = [{ text: '保存', style: 'primary' }];
 				this.loading();
-				_http2.default.get('test.html', this.param).on('complete', function () {
+				_http2.default.get(url, param, title).on('complete', function () {
 					_this2.loading('off');
 				}).on('success', function (html) {
-					_this2.title = '默认标题';
-					_this2.btns = [{ text: '保存', style: 'primary' }];
 					_this2.create();
 					_this2.events();
 					_this2.render(html);
-					_this2.flex();
-					_this2.position();
+					_this2.rebuild();
 					_this2.show();
 				}).on('error', function () {
 					_this2.alert(statusText, 'error');
@@ -241,7 +238,7 @@
 				// content
 				function () {
 					if (msg) {
-						return '\n\t\t\t\t\t\t\t<div class="icon icon-' + icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + msg + '</div>\n\t\t\t\t\t\t';
+						return '\n\t\t\t\t\t\t\t<div class="panel-icon icon-' + icon + '"></div>\n\t\t\t\t\t\t\t<div class="panel-msg">' + msg + '</div>\n\t\t\t\t\t\t';
 					} else {
 						return '';
 					}
@@ -280,6 +277,15 @@
 		}, {
 			key: 'flex',
 			value: function flex() {}
+	
+			// 重建
+	
+		}, {
+			key: 'rebuild',
+			value: function rebuild() {
+				this.flex();
+				this.position();
+			}
 	
 			// 显示
 	
