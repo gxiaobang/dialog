@@ -3,10 +3,11 @@
  */
 
 import { isFunction, isArray, 
-	getIndex, $s, Http, 
+	getIndex, $s, 
 	addEvent, removeEvent,
-	parseDOM, mixin, BaseMethod } from './util';
+	parseDOM, mixin, BaseMethod } from './util.js';
 
+import Http from './http.js';
 import { Dragable } from './dragable.js';
 import fx from './fx.js';
 

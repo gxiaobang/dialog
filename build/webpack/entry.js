@@ -45,9 +45,11 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(1);
-	__webpack_require__(3);
 	__webpack_require__(4);
+	__webpack_require__(6);
 	__webpack_require__(5);
+	__webpack_require__(3);
+	__webpack_require__(7);
 	module.exports = __webpack_require__(2);
 
 
@@ -66,9 +68,13 @@
 	
 	var _util = __webpack_require__(2);
 	
-	var _dragable = __webpack_require__(3);
+	var _http = __webpack_require__(3);
 	
-	var _fx = __webpack_require__(4);
+	var _http2 = _interopRequireDefault(_http);
+	
+	var _dragable = __webpack_require__(4);
+	
+	var _fx = __webpack_require__(5);
 	
 	var _fx2 = _interopRequireDefault(_fx);
 	
@@ -155,7 +161,7 @@
 				var _this2 = this;
 	
 				this.loading();
-				_util.Http.get('test.html', this.param).on('complete', function () {
+				_http2.default.get('test.html', this.param).on('complete', function () {
 					_this2.loading('off');
 				}).on('success', function (html) {
 					_this2.title = '默认标题';
@@ -430,10 +436,6 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	/**
@@ -685,6 +687,15 @@
 		return event;
 	}
 	
+	// 判断包含关系
+	function contains(e1, e2) {
+		if (e1.contains) {
+			return e1.contains(e2);
+		} else {
+			return e1.compareDocumentPosition(e2) == 16;
+		}
+	}
+	
 	// 事件绑定
 	function addEvent(el, type, expr, fn) {
 		// el.addEventListener(type, fn, false);
@@ -730,7 +741,7 @@
 			var target = event.target;
 	
 			if (suports.is('matches')) {
-				while (target !== el) {
+				while (target && target !== el) {
 					if (target.matches(expr)) {
 						fn && fn.call(target, event);
 						break;
@@ -791,6 +802,111 @@
 		return str;
 	}
 	
+	// 日期输出格式
+	function dateFormat(fmt, date) {
+		date = date || new Date();
+		function _pad(num) {
+			if (num < 10) {
+				num = '0' + num;
+			}
+			return num;
+		}
+	
+		return String(fmt).replace(/yyyy|MM|dd|HH|mm|ss|D/g, function (m) {
+			switch (m) {
+				case 'yyyy':
+					return date.getFullYear();
+				case 'MM':
+					return _pad(date.getMonth() + 1);
+				case 'dd':
+					return _pad(date.getDate());
+				case 'HH':
+					return _pad(date.getHours());
+				case 'mm':
+					return _pad(date.getMinutes());
+				case 'ss':
+					return _pad(date.getSeconds());
+				case 'D':
+					var locDays = ['日', '一', '二', '三', '四', '五', '六'];
+					return _pad(locDays[date.getDay()]);
+			}
+		});
+	}
+	
+	// 获取相对页面所在位置
+	function getPoint(el) {
+		var x = 0,
+		    y = 0;
+	
+		while (el) {
+			x += el.offsetLeft;
+			y += el.offsetTop;
+	
+			el = el.offsetParent;
+		}
+	
+		return {
+			x: x, y: y
+		};
+	}
+	
+	// 检测浏览器支持
+	var suports = {
+		_cache: {},
+		is: function is(prop) {
+			return true;
+		},
+	
+		// 获取支持属性
+		get: function get(prop) {
+			if (this._cache[prop]) return this._cache[prop];
+			return prop;
+		}
+	};
+	
+	exports.noop = noop;
+	exports.BaseMethod = BaseMethod;
+	exports.isObject = isObject;
+	exports.isNumber = isNumber;
+	exports.isArray = isArray;
+	exports.isString = isString;
+	exports.isFunction = isFunction;
+	exports.forEach = forEach;
+	exports.getIndex = getIndex;
+	exports.$s = $s;
+	exports.parseDOM = parseDOM;
+	exports.getStyle = getStyle;
+	exports.setStyle = setStyle;
+	exports.contains = contains;
+	exports.addEvent = addEvent;
+	exports.removeEvent = removeEvent;
+	exports.templ = templ;
+	exports.dateFormat = dateFormat;
+	exports.getPoint = getPoint;
+	exports.mixin = mixin;
+	exports.requestAnim = requestAnim;
+	exports.suports = suports;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _util = __webpack_require__(2);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
 	// http请求
 	
 	var Http = function (_BaseMethod) {
@@ -806,14 +922,14 @@
 	
 			_classCallCheck(this, Http);
 	
-			var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Http).call(this));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Http).call(this));
 	
-			_this2.initFn('beforeSend', 'success', 'error', 'complete');
-			_this2.method = method;
-			_this2.url = url;
-			_this2.param = param;
-			_this2.setup();
-			return _this2;
+			_this.initFn('beforeSend', 'success', 'error', 'complete');
+			_this.method = method;
+			_this.url = url;
+			_this.param = param;
+			_this.setup();
+			return _this;
 		}
 	
 		_createClass(Http, [{
@@ -846,23 +962,23 @@
 		}, {
 			key: 'events',
 			value: function events() {
-				var _this3 = this;
+				var _this2 = this;
 	
 				this.xhr.onreadystatechange = function () {
 					// console.log(this.xhr.readyState);
-					if (_this3.xhr.readyState == 4) {
-						switch (_this3.xhr.status) {
+					if (_this2.xhr.readyState == 4) {
+						switch (_this2.xhr.status) {
 							case 200:
 							// 有缓存
 							case 302:
-								_this3.success();
+								_this2.success();
 								break;
 							case 404:
 							case 500:
-								_this3.error();
+								_this2.error();
 								break;
 						}
-						_this3.complete();
+						_this2.complete();
 					}
 				};
 			}
@@ -908,45 +1024,12 @@
 		}]);
 	
 		return Http;
-	}(BaseMethod);
+	}(_util.BaseMethod);
 	
-	// 检测浏览器支持
-	
-	
-	var suports = {
-		_cache: {},
-		is: function is(prop) {
-			return true;
-		},
-	
-		// 获取支持属性
-		get: function get(prop) {
-			if (this._cache[prop]) return this._cache[prop];
-			return prop;
-		}
-	};
-	
-	exports.isObject = isObject;
-	exports.isNumber = isNumber;
-	exports.isArray = isArray;
-	exports.isString = isString;
-	exports.isFunction = isFunction;
-	exports.forEach = forEach;
-	exports.getIndex = getIndex;
-	exports.$s = $s;
-	exports.parseDOM = parseDOM;
-	exports.getStyle = getStyle;
-	exports.setStyle = setStyle;
-	exports.addEvent = addEvent;
-	exports.removeEvent = removeEvent;
-	exports.BaseMethod = BaseMethod;
-	exports.mixin = mixin;
-	exports.Http = Http;
-	exports.requestAnim = requestAnim;
-	exports.suports = suports;
+	exports.default = Http;
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1045,7 +1128,7 @@
 	exports.Dragable = Dragable;
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1179,7 +1262,15 @@
 	exports.default = fx;
 
 /***/ },
-/* 5 */
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	__webpack_require__(7);
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1222,4 +1313,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=test.bundle.js.map
+//# sourceMappingURL=entry.js.map

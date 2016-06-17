@@ -213,6 +213,16 @@ function fixEvent(event) {
 	return event;
 }
 
+// 判断包含关系
+function contains(e1, e2) {
+	if (e1.contains) {
+		return e1.contains(e2);
+	}
+	else {
+		return e1.compareDocumentPosition(e2) == 16;
+	}
+}
+
 // 事件绑定
 function addEvent(el, type, expr, fn) {
 	// el.addEventListener(type, fn, false);
@@ -220,7 +230,7 @@ function addEvent(el, type, expr, fn) {
 	if (isString(el)) {
 		el = $s(el);
 	}
-
+	
 	if (el.length) {
 		forEach(el, function(elem) {
 			addEvent(elem, type, expr, fn);
@@ -262,7 +272,7 @@ function delegate(el, type, expr, fn) {
 		let target = event.target;
 
 		if (suports.is('matches')) {
-			while (target !== el) {
+			while (target && target !== el) {
 				if (target.matches(expr)) {
 					fn && fn.call(target, event);
 					break;
@@ -317,84 +327,51 @@ function templ(str, ...args) {
 	return str;
 }
 
-// http请求
-class Http extends BaseMethod {
-	constructor({ method = 'GET', url = '', param = null }) {
-		super();
-		this.initFn('beforeSend', 'success', 'error', 'complete');
-		this.method = method;
-		this.url = url;
-		this.param = param;
-		this.setup();
-	}
-
-	setup() {
-		this.create();
-		this.events();
-		this.send(this.param);
-	}
-
-	create() {
-		this.xhr = new XMLHttpRequest();
-	}
-
-	send(param) {
-		this.beforeSend();
-		switch (this.method.toUpperCase()) {
-			case 'GET':
-				this.xhr.open('GET', this.url, true);
-				this.xhr.send();
-				break;
-			case 'POST':
-				this.xhr.open('POST', this.url, true);
-				this.xhr.send(this.param);
-				break;
+// 日期输出格式
+function dateFormat(fmt, date) {
+	date = date || new Date;
+	function _pad( num ) {
+		if (num < 10) {
+			num = '0' + num;
 		}
+		return num;
 	}
 
-	events() {
-		this.xhr.onreadystatechange = () => {
-			// console.log(this.xhr.readyState);
-			if (this.xhr.readyState == 4) {
-				switch (this.xhr.status) {
-					case 200:
-					// 有缓存
-					case 302:
-						this.success();
-						break;
-					case 404:
-					case 500:
-						this.error();
-						break;
-				}
-				this.complete();
-			}
+	return String(fmt).replace(/yyyy|MM|dd|HH|mm|ss|D/g, function(m) {
+		switch (m) {
+			case 'yyyy':
+				return date.getFullYear();
+			case 'MM':
+				return _pad(date.getMonth() + 1);
+			case 'dd':
+				return _pad(date.getDate());
+			case 'HH':
+				return _pad(date.getHours());
+			case 'mm':
+				return _pad(date.getMinutes());
+			case 'ss':
+				return _pad(date.getSeconds());
+			case 'D':
+				var locDays = ['日', '一', '二', '三', '四', '五', '六'];
+				return _pad( locDays[date.getDay()] );
 		}
+	});
+}
+
+// 获取相对页面所在位置
+function getPoint(el) {
+	var x = 0,
+			y = 0;
+
+	while (el) {
+		x += el.offsetLeft;
+		y += el.offsetTop;
+
+		el = el.offsetParent;
 	}
 
-	// 请求发送前
-	beforeSend() {
-		this.trigger(this.fn.beforeSend, this.xhr);
-	}
-	// 成功
-	success() {
-		this.trigger(this.fn.success, this.xhr, this.xhr.responseText);
-	}
-	// 错误
-	error() {
-		this.trigger(this.fn.error, this.xhr, this.xhr.statusText);
-	}
-	// 完成
-	complete() {
-		this.trigger(this.fn.complete, this.xhr);
-	}
-
-
-	static get(url, param) {
-		return new Http({ method: 'GET', url, param });
-	}
-	static post() {
-		return new Http({ method: 'POST', url, param });
+	return {
+		x: x, y: y
 	}
 }
 
@@ -412,13 +389,13 @@ var suports = {
 };
 
 
-
 export { 
+	noop, BaseMethod, 
 	isObject, isNumber, isArray, isString, isFunction,
 	forEach,
 	getIndex, $s, 
 	parseDOM, getStyle, setStyle, 
-	addEvent, removeEvent,
-	BaseMethod,
-	mixin, Http, requestAnim , suports
+	contains, addEvent, removeEvent,
+	templ, dateFormat, getPoint,
+	mixin, requestAnim, suports
 };
