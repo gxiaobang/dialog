@@ -23,3 +23,7 @@
 	@include frames-scale(1, 1.2);
 	@include frames-fade(1, 0);
 }
+
+@keyframes rotate {
+	@include frames-rotate(0deg, 360deg);
+}

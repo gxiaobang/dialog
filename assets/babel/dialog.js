@@ -310,4 +310,5 @@ class Dialog extends BaseMethod {
 
 // 全局
 global.Dialog = Dialog;
-export { Dialog };
+// export { Dialog };
+export default Dialog;

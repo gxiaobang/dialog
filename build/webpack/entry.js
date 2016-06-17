@@ -62,7 +62,6 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.Dialog = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -421,7 +420,8 @@
 	
 	
 	global.Dialog = Dialog;
-	exports.Dialog = Dialog;
+	// export { Dialog };
+	exports.default = Dialog;
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
@@ -1277,37 +1277,49 @@
 	
 	var _dialog = __webpack_require__(1);
 	
+	var _dialog2 = _interopRequireDefault(_dialog);
+	
 	var _util = __webpack_require__(2);
 	
-	var type = (0, _util.$s)('#type')[0],
-	    icon = (0, _util.$s)('#icon')[0],
-	    msg = (0, _util.$s)('#msg')[0];
+	var util = _interopRequireWildcard(_util);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var type = util.$s('#type')[0],
+	    icon = util.$s('#icon')[0],
+	    msg = util.$s('#msg')[0],
+	    btn = util.$s('#btn')[0];
 	
 	// dialog('loading');
-	(0, _util.$s)('#btn')[0].onclick = function () {
-		_dialog.Dialog[type.value](msg.value, icon.value).on('ok', function (event) {
-			console.log('click ok button');
-		}).on('cancel', function (event) {
-			console.log('click cancel button');
-		});
+	btn.onclick = function () {
 	
-		if (type.value == 'loading') {
-			setTimeout(function () {
-				var second = 5;
-				var dialog = _dialog.Dialog.prompt(second + '秒后自动关闭loading', 6000)
-				/*.update((scope) => {
-	   	setTimeout(function loop() {
-	   		second--;
-	   		if (second > 0) {
-	   			scope.msg = `${second}秒后自动关闭loading`;
-	   			setTimeout(loop, 1000);
-	   		}
-	   	}, 1000);
-	   })*/
-				.on('ready', function () {
-					return _dialog.Dialog.loading('off');
+		switch (type.value) {
+			case 'load':
+				if (window.location.protocol == 'file:') {
+					_dialog2.default.alert('请在服务器环境测试！', 'warn');
+				} else {
+					_dialog2.default.load('a.html', null).on('ready', function () {
+						return console.log('page load complete');
+					});
+				}
+				break;
+			case 'loading':
+				_dialog2.default.loading();
+				setTimeout(function () {
+					var second = 5;
+					_dialog2.default.prompt(second + '秒后自动关闭loading', 6000).on('ready', function () {
+						return _dialog2.default.loading('off');
+					});
+				}, 1000);
+				break;
+			default:
+				_dialog2.default[type.value](msg.value, icon.value).on('ok', function (event) {
+					console.log('click ok button');
+				}).on('cancel', function (event) {
+					console.log('click cancel button');
 				});
-			}, 1000);
 		}
 	};
 

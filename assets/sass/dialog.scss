@@ -64,6 +64,7 @@
 		// background-color: #5492f3;
 		background-image: radial-gradient(circle at bottom left, rgba(84, 128, 217, 1), rgba(84, 128, 217, .3));
 		border-radius: 50%;
+		animation: rotate 1s linear infinite both;
 	}
 
 	&:after {
