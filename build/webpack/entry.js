@@ -1306,7 +1306,7 @@
 				if (window.location.protocol == 'file:') {
 					_dialog2.default.alert('请在服务器环境测试！', 'warn');
 				} else {
-					_dialog2.default.load('a.html', null).on('ready', function () {
+					_dialog2.default.load('page.html', null).on('ready', function () {
 						return console.log('page load complete');
 					});
 				}
