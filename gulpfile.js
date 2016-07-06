@@ -22,7 +22,7 @@ var path = {
 		dest: './build/css/'
 	},
 	webpack: {
-		src: './assets/babel/**/*.{js,jsx}',
+		src: './assets/js/**/*.{js,jsx}',
 		dest: './build/webpack/'
 	}
 };
@@ -56,7 +56,7 @@ gulp.task('webpack', () => {
 		.pipe(plumber())
 		// .pipe(sourcemaps.init())
 		.pipe(webpack({ 
-			output: { filename: 'entry.js' },
+			output: { filename: 'bundle.js' },
 			module: {
 				loaders: [
 					{

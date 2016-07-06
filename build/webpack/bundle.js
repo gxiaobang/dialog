@@ -45,16 +45,78 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(1);
-	__webpack_require__(4);
-	__webpack_require__(6);
-	__webpack_require__(5);
 	__webpack_require__(3);
+	__webpack_require__(6);
 	__webpack_require__(7);
-	module.exports = __webpack_require__(2);
+	__webpack_require__(5);
+	__webpack_require__(2);
+	module.exports = __webpack_require__(4);
 
 
 /***/ },
 /* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	__webpack_require__(2);
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _dialog = __webpack_require__(3);
+	
+	var _dialog2 = _interopRequireDefault(_dialog);
+	
+	var _util = __webpack_require__(4);
+	
+	var util = _interopRequireWildcard(_util);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var type = util.$s('#type')[0],
+	    icon = util.$s('#icon')[0],
+	    msg = util.$s('#msg')[0],
+	    btn = util.$s('#btn')[0];
+	
+	// dialog('loading');
+	btn.onclick = function () {
+	
+		switch (type.value) {
+			case 'load':
+				if (window.location.protocol == 'file:') {
+					_dialog2.default.alert('请在服务器环境测试！', 'warn');
+				} else {
+					_dialog2.default.load('page.html', null).on('ready', function () {
+						return console.log('page load complete');
+					});
+				}
+				break;
+			case 'loading':
+				_dialog2.default.loading();
+				setTimeout(function () {
+					var second = 5;
+					_dialog2.default.prompt(second + '秒后自动关闭loading', 6000).on('ready', function () {
+						return _dialog2.default.loading('off');
+					});
+				}, 1000);
+				break;
+			default:
+				_dialog2.default[type.value](msg.value, icon.value).on('ok', function (event) {
+					console.log('click ok button');
+				}).on('cancel', function (event) {
+					console.log('click cancel button');
+				});
+		}
+	};
+
+/***/ },
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -65,15 +127,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _util = __webpack_require__(2);
+	var _util = __webpack_require__(4);
 	
-	var _http = __webpack_require__(3);
+	var _http = __webpack_require__(5);
 	
 	var _http2 = _interopRequireDefault(_http);
 	
-	var _dragable = __webpack_require__(4);
+	var _dragable = __webpack_require__(6);
 	
-	var _fx = __webpack_require__(5);
+	var _fx = __webpack_require__(7);
 	
 	var _fx2 = _interopRequireDefault(_fx);
 	
@@ -431,7 +493,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 2 */
+/* 4 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -894,7 +956,7 @@
 	exports.suports = suports;
 
 /***/ },
-/* 3 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -905,7 +967,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _util = __webpack_require__(2);
+	var _util = __webpack_require__(4);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1035,7 +1097,7 @@
 	exports.default = Http;
 
 /***/ },
-/* 4 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1047,7 +1109,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _util = __webpack_require__(2);
+	var _util = __webpack_require__(4);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1134,7 +1196,7 @@
 	exports.Dragable = Dragable;
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1145,7 +1207,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _util = __webpack_require__(2);
+	var _util = __webpack_require__(4);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1267,68 +1329,6 @@
 	
 	exports.default = fx;
 
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	__webpack_require__(7);
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var _dialog = __webpack_require__(1);
-	
-	var _dialog2 = _interopRequireDefault(_dialog);
-	
-	var _util = __webpack_require__(2);
-	
-	var util = _interopRequireWildcard(_util);
-	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var type = util.$s('#type')[0],
-	    icon = util.$s('#icon')[0],
-	    msg = util.$s('#msg')[0],
-	    btn = util.$s('#btn')[0];
-	
-	// dialog('loading');
-	btn.onclick = function () {
-	
-		switch (type.value) {
-			case 'load':
-				if (window.location.protocol == 'file:') {
-					_dialog2.default.alert('请在服务器环境测试！', 'warn');
-				} else {
-					_dialog2.default.load('page.html', null).on('ready', function () {
-						return console.log('page load complete');
-					});
-				}
-				break;
-			case 'loading':
-				_dialog2.default.loading();
-				setTimeout(function () {
-					var second = 5;
-					_dialog2.default.prompt(second + '秒后自动关闭loading', 6000).on('ready', function () {
-						return _dialog2.default.loading('off');
-					});
-				}, 1000);
-				break;
-			default:
-				_dialog2.default[type.value](msg.value, icon.value).on('ok', function (event) {
-					console.log('click ok button');
-				}).on('cancel', function (event) {
-					console.log('click cancel button');
-				});
-		}
-	};
-
 /***/ }
 /******/ ]);
-//# sourceMappingURL=entry.js.map
+//# sourceMappingURL=bundle.js.map
