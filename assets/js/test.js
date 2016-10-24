@@ -16,7 +16,7 @@ btn.onclick = () => {
 				Dialog.alert('请在服务器环境测试！', 'warn');
 			}
 			else {
-				Dialog.load('a.html', null)
+				Dialog.load('page.html', null)
 					.on('ready', () => console.log('page load complete'));
 			}
 			break;
